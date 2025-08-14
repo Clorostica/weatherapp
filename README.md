@@ -1,7 +1,7 @@
 # WeatherApp 🌤️
 
 A modern weather app built with **React + Vite**. Get the current weather, weekly forecasts, and keep track of your recent searches anywhere in the world. Multilingual support included (English & Spanish).
-
+🌐 **Live Demo:** [https://weatherapp-j3iz.vercel.app/](https://weatherapp-j3iz.vercel.app/)  
 ---
 
 ## 🚀 Features

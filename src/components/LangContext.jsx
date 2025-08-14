@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import translations from "./translations";
+import { translations } from "./Translations";
 
 const LangContext = createContext(null);
 

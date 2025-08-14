@@ -16,8 +16,7 @@ const WeatherApp = ({ setWeatherData }) => {
         setCity(cityQuery);
 
         const geoRes = await fetch(
-          `https://api.openweathermap.org/geo/1.0/direct?q=${cityQuery}&limit=1&appid=${
-            import.meta.env.VITE_API_KEY
+          `https://api.openweathermap.org/geo/1.0/direct?q=${cityQuery}&limit=1&appid=${API_KEY}
           }`
         );
 
@@ -27,18 +26,14 @@ const WeatherApp = ({ setWeatherData }) => {
         const { lat, lon } = geoData[0];
 
         const weatherRes = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${
-            import.meta.env.VITE_API_KEY
-          }&units=metric&lang=${lang}`
+          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=${lang}`
         );
         const weatherData = await weatherRes.json();
         setWeather(weatherData);
         setWeatherData(weatherData);
 
         const forecastRes = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${
-            import.meta.env.VITE_API_KEY
-          }&units=metric&lang=${lang}`
+          `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric&lang=${lang}`
         );
         const forecastData = await forecastRes.json();
 
@@ -58,7 +53,7 @@ const WeatherApp = ({ setWeatherData }) => {
         setForecast([]);
       }
     },
-    [lang, setWeatherData]
+    [lang, setWeatherData, API_KEY]
   );
 
   useEffect(() => {

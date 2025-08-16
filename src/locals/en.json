@@ -1,4 +1,6 @@
 {
   "writeCity": "Write the city",
-  "changeLang": "Change Language"
+  "changeLang": "Change Language",
+  "today": "Today",
+  "tomorrow": "Tomorrow"
 }

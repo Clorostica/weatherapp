@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { useLang } from "../components/LangContext";
 
 const Search = ({ onSearch }) => {
   const [cityQuery, setCityQuery] = useState("");
   const [warning, setWarning] = useState("");
   const [isFocused, setIsFocused] = useState(false);
+  const { t } = useLang();
 
   const handleSubmit = () => {
     if (cityQuery.trim() === "") {
@@ -23,8 +25,7 @@ const Search = ({ onSearch }) => {
   return (
     <div className="search-container">
       <div className="line" />
-      <h3 className="search-title">Write the city</h3>
-
+      <h3 className="search-title">{t.writeCity}</h3>
       <div
         style={{
           position: "relative",

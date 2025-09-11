@@ -57,12 +57,52 @@ const WeatherApp = ({ setWeatherData }) => {
 
   useEffect(() => {
     const savedCity = localStorage.getItem("lastCity");
+
     if (savedCity) {
       setCity(savedCity);
       handleSearch(savedCity);
-    }
-  }, [handleSearch]);
+    } else if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const { latitude, longitude } = position.coords;
 
+          try {
+            // Traer clima por coordenadas
+            const weatherRes = await fetch(
+              `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`
+            );
+            const weatherData = await weatherRes.json();
+            setWeather(weatherData);
+            setWeatherData(weatherData);
+
+            const forecastRes = await fetch(
+              `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`
+            );
+            const forecastData = await forecastRes.json();
+
+            const dailyForecast = forecastData.list
+              .filter((_, i) => i % 8 === 0)
+              .map((item) => ({
+                date: item.dt_txt.split(" ")[0],
+                temp: Math.round(item.main.temp),
+                description: item.weather[0].description,
+                weatherMain: item.weather[0].main,
+              }));
+
+            setForecast(dailyForecast);
+          } catch (err) {
+            console.error("Error obteniendo clima por ubicación:", err);
+          }
+        },
+        (error) => {
+          console.error("Error de ubicación:", error.message);
+          // fallback si el usuario niega el permiso
+        }
+      );
+    }
+  }, [handleSearch, lang, OPEN_WEATHER_API_KEY, setWeatherData]);
+
+  // Este useEffect lo dejas igual (para guardar la última ciudad buscada)
   useEffect(() => {
     if (city) {
       localStorage.setItem("lastCity", city);

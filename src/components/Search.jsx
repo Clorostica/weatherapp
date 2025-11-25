@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useLang } from "../components/LangContext";
+import { useLang } from "../components/useLang";
+import GlassSurface from "./GlassSurface";
 
 const Search = ({ onSearch }) => {
   const [cityQuery, setCityQuery] = useState("");
   const [warning, setWarning] = useState("");
-  const [isFocused, setIsFocused] = useState(false);
   const { t } = useLang();
 
   const handleSubmit = () => {
@@ -24,95 +24,145 @@ const Search = ({ onSearch }) => {
 
   return (
     <div className="search-container">
-      <div className="line" />
-      <h3 className="search-title">{t.writeCity}</h3>
       <div
         style={{
           position: "relative",
-          width: "100%",
           display: "flex",
           gap: "12px",
+          alignItems: "center",
+          paddingLeft: "24px",
+          paddingRight: "32px",
         }}
       >
         <div
           style={{
             position: "relative",
-            flex: "1",
+            flex: "3",
+            minWidth: "0",
+            width: "100%",
           }}
         >
-          <input
-            className="fancy-input"
-            type="text"
-            value={cityQuery}
-            onChange={(e) => {
-              setCityQuery(e.target.value);
-              if (warning) setWarning("");
-            }}
-            onFocus={() => setIsFocused(true)}
-            onBlur={() => setIsFocused(false)}
-            onKeyDown={handleKeyPress}
-            placeholder="Ej: Madrid, Buenos Aires, Tokio..."
-          />
-          <div
+          <GlassSurface
+            width="100%"
+            height="100%"
             style={{
-              position: "absolute",
-              right: "16px",
-              top: "50%",
-              transform: "translateY(-50%)",
-              color: "rgba(255,255,255,0.6)",
-              pointerEvents: "none",
-              zIndex: 1,
+              minHeight: "65px",
+              position: "relative",
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-            </svg>
-          </div>
+            <div
+              style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "rgba(255,255,255,0.6)",
+                pointerEvents: "none",
+                zIndex: 1,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+              >
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={cityQuery}
+              onChange={(e) => {
+                setCityQuery(e.target.value);
+                if (warning) setWarning("");
+              }}
+              onKeyDown={handleKeyPress}
+              placeholder="Write a city name.."
+              style={{
+                width: "100%",
+                height: "100%",
+                paddingLeft: "48px",
+                paddingRight: "16px",
+                paddingTop: "16px",
+                paddingBottom: "16px",
+                border: "none",
+                background: "transparent",
+                outline: "none",
+                color: "white",
+                fontSize: "16px",
+                boxSizing: "border-box",
+              }}
+              className="search-input"
+            />
+          </GlassSurface>
         </div>
 
-        <button
-          className="button-search"
-          onClick={handleSubmit}
-          onMouseEnter={(e) => {
-            e.target.style.background =
-              "linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.25))";
-            e.target.style.transform = "translateY(-2px)";
-            e.target.style.boxShadow = "0 8px 25px rgba(0,0,0,0.15)";
+        <GlassSurface
+          width="65px"
+          height="65px"
+          style={{
+            minWidth: "65px",
+            minHeight: "65px",
+            cursor: "pointer",
           }}
-          onMouseLeave={(e) => {
-            e.target.style.background =
-              "linear-gradient(135deg, rgba(255,255,255,0.25), rgba(255,255,255,0.15))";
-            e.target.style.transform = "translateY(0)";
-            e.target.style.boxShadow = "0 4px 15px rgba(0,0,0,0.1)";
-          }}
-          onMouseDown={(e) => {
-            e.target.style.transform = "translateY(0)";
-          }}
-          onMouseUp={(e) => {
-            e.target.style.transform = "translateY(-2px)";
-          }}
-          aria-label="Write the city"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="22"
-            height="22"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
+          <button
+            onClick={handleSubmit}
+            onMouseEnter={(e) => {
+              e.currentTarget.parentElement.style.transform =
+                "translateY(-2px)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.parentElement.style.transform = "translateY(0)";
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.parentElement.style.transform = "translateY(0)";
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.parentElement.style.transform =
+                "translateY(-2px)";
+            }}
+            aria-label="Write the city"
+            style={{
+              width: "100%",
+              height: "100%",
+              border: "none",
+              background: "transparent",
+              outline: "none",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: 0,
+            }}
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z"
-            />
-          </svg>
-        </button>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="22"
+              height="22"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+              style={{
+                color: "white",
+              }}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 1110.5 3a7.5 7.5 0 016.15 13.65z"
+              />
+            </svg>
+          </button>
+        </GlassSurface>
       </div>
 
       {warning && <div className="warning">{warning}</div>}
-      <div className="enter">Press enter</div>
+      <div className="enter">{t.pressEnter}</div>
     </div>
   );
 };

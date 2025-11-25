@@ -1,55 +1,88 @@
-import { useState } from "react";
+import { useState, memo, useMemo } from "react";
 import WeatherApp from "./WeatherApp";
 import BackgroundWrapper from "./components/BackgroundWrapper";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import { LangProvider, useLang } from "./components/LangContext";
+import { LangProvider } from "./components/LangContext";
+import ErrorBoundary from "./components/ErrorBoundary";
+
 import "./App.css";
 
-const AppContent = () => {
-  const { lang, switchLang } = useLang();
+const AppContent = memo(() => {
   const [weatherData, setWeatherData] = useState(null);
+  const [savedWeatherType, setSavedWeatherType] = useState(() => {
+    const saved = localStorage.getItem("lastWeatherType");
+    return saved || "sunny";
+  });
 
-  const getWeatherType = (weatherData) => {
-    if (!weatherData) return "sunny";
+  const currentWeatherType = useMemo(() => {
+    if (!weatherData) return savedWeatherType;
 
     const condition = weatherData.weather[0].main.toLowerCase();
     const temp = weatherData.main.temp;
 
+    let weatherType;
     switch (condition) {
       case "clear":
-        return temp > 25 ? "hot" : "sunny";
+        weatherType = temp > 25 ? "hot" : "sunny";
+        break;
       case "clouds":
-        return "cloudy";
+        weatherType = "cloudy";
+        break;
       case "rain":
       case "drizzle":
-        return "rainy";
+        weatherType = "rainy";
+        break;
       case "thunderstorm":
-        return "stormy";
+        weatherType = "stormy";
+        break;
       case "snow":
-        return temp < 5 ? "cold" : "snowy";
+        weatherType = temp < 5 ? "cold" : "snowy";
+        break;
       case "mist":
       case "fog":
-        return "cloudy";
+        weatherType = "cloudy";
+        break;
       default:
-        return "sunny";
+        weatherType = "sunny";
     }
-  };
+
+    if (weatherType !== savedWeatherType) {
+      localStorage.setItem("lastWeatherType", weatherType);
+      setSavedWeatherType(weatherType);
+    }
+
+    return weatherType;
+  }, [weatherData, savedWeatherType]);
 
   return (
-    <BackgroundWrapper weatherType={getWeatherType(weatherData)}>
-      <LanguageSwitcher currentLanguage={lang} onChangeLanguage={switchLang} />
+    <BackgroundWrapper weatherType={currentWeatherType}>
       <br />
       <WeatherApp setWeatherData={setWeatherData} />
-      <footer className="footer">Hecho con ☁️ por Claudia Orostica</footer>
+      <br />
+      <footer className="mt-10 footer-description text-center">
+        Created with <span style={{ color: "#9333ea" }}>♥</span> by{" "}
+        <a
+          href="https://github.com/Clorostica"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="hover:opacity-80 transition-opacity no-underline"
+          style={{ color: "#9333ea" }}
+        >
+          Clorostica
+        </a>
+      </footer>
+      <LanguageSwitcher />
     </BackgroundWrapper>
   );
-};
+});
 
 function App() {
   return (
-    <LangProvider>
-      <AppContent />
-    </LangProvider>
+    <ErrorBoundary>
+      <LangProvider>
+        <AppContent />
+      </LangProvider>
+    </ErrorBoundary>
   );
 }
 

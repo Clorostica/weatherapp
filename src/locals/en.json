@@ -2,5 +2,20 @@
   "writeCity": "Write the city",
   "changeLang": "Change Language",
   "today": "Today",
-  "tomorrow": "Tomorrow"
+  "tomorrow": "Tomorrow",
+  "weatherRadar": "Weather Radar",
+  "weatherForecast": "Weather Forecast",
+  "pressEnter": "Press enter",
+  "humidity": "Humidity",
+  "wind": "Wind",
+  "feelsLike": "Feels like",
+  "type": "Type:",
+  "precipitation": "Precipitation",
+  "clouds": "Clouds",
+  "temperature": "Temperature",
+  "zoom": "Zoom:",
+  "pause": "Pause",
+  "animation": "Animation",
+  "reset": "Reset",
+  "coordinates": "Coordinates"
 }

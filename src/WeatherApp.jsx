@@ -1,55 +1,120 @@
-import Search from "./components/Search";
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, lazy, Suspense } from "react";
+import { useLang } from "./components/useLang";
 import getWeatherIcon from "./components/IconWeather.js";
-import { useLang } from "./components/LangContext";
+import Search from "./components/Search";
+
+const WeatherCard = lazy(() =>
+  import("./components/WeatherCard").then((module) => ({
+    default: module.WeatherCard,
+  }))
+);
+const ForecastGrid = lazy(() =>
+  import("./components/ForecastGrid").then((module) => ({
+    default: module.ForecastGrid,
+  }))
+);
+const WeatherRadar = lazy(() => import("./components/WeatherRadar"));
 
 const WeatherApp = ({ setWeatherData }) => {
   const { t, lang } = useLang();
   const [city, setCity] = useState("");
   const [weather, setWeather] = useState(null);
   const [forecast, setForecast] = useState([]);
+  const [hasSearched, setHasSearched] = useState(false);
+
   const OPEN_WEATHER_API_KEY = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
 
   const handleSearch = useCallback(
     async (cityQuery) => {
       try {
-        setCity(cityQuery);
+        if (!OPEN_WEATHER_API_KEY) {
+          throw new Error("API key no configurada. Verifica tu archivo .env");
+        }
 
-        const geoRes = await fetch(
-          `https://api.openweathermap.org/geo/1.0/direct?q=${cityQuery}&limit=1&appid=${OPEN_WEATHER_API_KEY}`
-        );
+        setCity(cityQuery);
+        setHasSearched(true);
+
+        const encodedCity = encodeURIComponent(cityQuery.trim());
+        const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodedCity}&limit=1&appid=${OPEN_WEATHER_API_KEY}`;
+
+        const geoRes = await fetch(geoUrl, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!geoRes.ok) {
+          const errorText = await geoRes.text();
+          console.error("Error en geocodificación:", geoRes.status, errorText);
+          throw new Error(`Error en la geocodificación: ${geoRes.status}`);
+        }
 
         const geoData = await geoRes.json();
-        if (!geoData.length) throw new Error("city not found");
+        if (!geoData || !geoData.length) {
+          throw new Error("Ciudad no encontrada");
+        }
 
         const { lat, lon } = geoData[0];
 
-        const weatherRes = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`
-        );
+        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`;
+        const weatherRes = await fetch(weatherUrl, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        });
+
+        if (!weatherRes.ok) {
+          const errorText = await weatherRes.text();
+          console.error(
+            "Error obteniendo clima:",
+            weatherRes.status,
+            errorText
+          );
+          throw new Error(`Error obteniendo el clima: ${weatherRes.status}`);
+        }
+
         const weatherData = await weatherRes.json();
         setWeather(weatherData);
         setWeatherData(weatherData);
 
-        const forecastRes = await fetch(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`
-        );
-        const forecastData = await forecastRes.json();
+        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`;
+        const forecastRes = await fetch(forecastUrl, {
+          method: "GET",
+          headers: {
+            Accept: "application/json",
+          },
+        });
 
+        if (!forecastRes.ok) {
+          const errorText = await forecastRes.text();
+          console.error(
+            "Error obteniendo pronóstico:",
+            forecastRes.status,
+            errorText
+          );
+          throw new Error(
+            `Error obteniendo el pronóstico: ${forecastRes.status}`
+          );
+        }
+
+        const forecastData = await forecastRes.json();
         const dailyForecast = forecastData.list
           .filter((_, i) => i % 8 === 0)
+          .slice(0, 5)
           .map((item) => ({
             date: item.dt_txt.split(" ")[0],
             temp: Math.round(item.main.temp),
             description: item.weather[0].description,
             weatherMain: item.weather[0].main,
           }));
-
         setForecast(dailyForecast);
       } catch (err) {
         console.error("Error:", err);
         setWeather(null);
         setForecast([]);
+        alert(err.message);
       }
     },
     [lang, setWeatherData, OPEN_WEATHER_API_KEY]
@@ -57,56 +122,15 @@ const WeatherApp = ({ setWeatherData }) => {
 
   useEffect(() => {
     const savedCity = localStorage.getItem("lastCity");
-
     if (savedCity) {
       setCity(savedCity);
+      setHasSearched(true);
       handleSearch(savedCity);
-    } else if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const { latitude, longitude } = position.coords;
-
-          try {
-            // Traer clima por coordenadas
-            const weatherRes = await fetch(
-              `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`
-            );
-            const weatherData = await weatherRes.json();
-            setWeather(weatherData);
-            setWeatherData(weatherData);
-
-            const forecastRes = await fetch(
-              `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${OPEN_WEATHER_API_KEY}&units=metric&lang=${lang}`
-            );
-            const forecastData = await forecastRes.json();
-
-            const dailyForecast = forecastData.list
-              .filter((_, i) => i % 8 === 0)
-              .map((item) => ({
-                date: item.dt_txt.split(" ")[0],
-                temp: Math.round(item.main.temp),
-                description: item.weather[0].description,
-                weatherMain: item.weather[0].main,
-              }));
-
-            setForecast(dailyForecast);
-          } catch (err) {
-            console.error("Error obteniendo clima por ubicación:", err);
-          }
-        },
-        (error) => {
-          console.error("Error de ubicación:", error.message);
-          // fallback si el usuario niega el permiso
-        }
-      );
     }
-  }, [handleSearch, lang, OPEN_WEATHER_API_KEY, setWeatherData]);
+  }, [handleSearch, OPEN_WEATHER_API_KEY]);
 
-  // Este useEffect lo dejas igual (para guardar la última ciudad buscada)
   useEffect(() => {
-    if (city) {
-      localStorage.setItem("lastCity", city);
-    }
+    if (city) localStorage.setItem("lastCity", city);
   }, [city]);
 
   const formatDateLabel = (dateString) => {
@@ -117,106 +141,57 @@ const WeatherApp = ({ setWeatherData }) => {
 
     const normalizeDate = (date) =>
       new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
     const normalizedForecastDate = normalizeDate(forecastDate);
     const normalizedToday = normalizeDate(today);
     const normalizedTomorrow = normalizeDate(tomorrow);
 
-    if (normalizedForecastDate.getTime() === normalizedToday.getTime()) {
+    if (normalizedForecastDate.getTime() === normalizedToday.getTime())
       return t.today;
-    } else if (
-      normalizedForecastDate.getTime() === normalizedTomorrow.getTime()
-    ) {
+    if (normalizedForecastDate.getTime() === normalizedTomorrow.getTime())
       return t.tomorrow;
-    } else {
-      const options = { weekday: "long" };
-      return forecastDate.toLocaleDateString(
-        lang === "en" ? "en-US" : "es-ES",
-        options
-      );
-    }
+    return forecastDate.toLocaleDateString(lang === "en" ? "en-US" : "es-ES", {
+      weekday: "long",
+    });
   };
 
+  const containerClass = "w-full max-w-[95%] 2xl:max-w-[2000px] mx-auto";
+
   return (
-    <div>
-      <Search onSearch={handleSearch} placeholder={t.writeCity} />
-      {weather && (
-        <div className="weather-card">
-          {getWeatherIcon(weather.weather[0].main)}
-          <h2
-            style={{
-              fontSize: "32px",
-              fontWeight: "bold",
-              textShadow: "0 0 8px rgba(0, 0, 0, 0.85)",
-              borderRadius: "8px",
-              display: "block",
-              color: "white",
-            }}
-          >
-            {weather.name}
-          </h2>
-          <p
-            style={{
-              textTransform: "capitalize",
-              marginTop: "8px",
-              textShadow: "0 0 6px rgba(0, 0, 0, 0.8)",
-              borderRadius: "6px",
-              display: "block",
-              color: "white",
-            }}
-          >
-            {weather.weather[0].description}
-          </p>
-          <p
-            style={{
-              fontSize: "55px",
-              fontWeight: "900",
-              marginTop: "16px",
-              textShadow: "0 0 10px rgba(0, 0, 0, 0.9)",
-              borderRadius: "10px",
-              display: "block",
-              color: "white",
-            }}
-          >
-            {Math.round(weather.main.temp)}°C
-          </p>
+    <div style={{ width: "800px" }}>
+      <div className={`${containerClass} search-sticky-wrapper`}>
+        <Search onSearch={handleSearch} placeholder={t.writeCity} />
+      </div>
+      <br />
+
+      {hasSearched && weather && (
+        <div className={containerClass}>
+          <Suspense fallback={<div style={{ minHeight: "200px" }} />}>
+            <WeatherCard weather={weather} getWeatherIcon={getWeatherIcon} />
+          </Suspense>
         </div>
       )}
 
-      {forecast.length > 0 && (
-        <div className="forecast-grid">
-          {forecast.map(({ date, temp, description, weatherMain }) => (
-            <div key={date} className="weather-card">
-              {getWeatherIcon(weatherMain)}
-              <p
-                style={{
-                  fontWeight: "600",
-                  fontSize: "18px",
-                  textShadow: "0 0 5px rgba(0, 0, 0, 0.8)",
-                }}
-              >
-                {formatDateLabel(date)}
-              </p>
-              <p
-                style={{
-                  fontSize: "28px",
-                  fontWeight: "bold",
-                  textShadow: "0 0 8px rgba(0, 0, 0, 0.9)",
-                }}
-              >
-                {temp}°C
-              </p>
-              <p
-                style={{
-                  textTransform: "capitalize",
-                  marginTop: "6px",
-                  textShadow: "0 0 5px rgba(0, 0, 0, 0.8)",
-                }}
-              >
-                {description}
-              </p>
-            </div>
-          ))}
+      <br />
+
+      {hasSearched && weather?.coord && (
+        <div className={containerClass}>
+          <Suspense fallback={<div style={{ minHeight: "400px" }} />}>
+            <WeatherRadar lat={weather.coord.lat} lon={weather.coord.lon} />
+          </Suspense>
+        </div>
+      )}
+
+      <br />
+
+      {hasSearched && forecast.length > 0 && (
+        <div className={containerClass}>
+          <Suspense fallback={<div style={{ minHeight: "200px" }} />}>
+            <ForecastGrid
+              forecast={forecast}
+              getWeatherIcon={getWeatherIcon}
+              formatDateLabel={formatDateLabel}
+            />
+          </Suspense>
         </div>
       )}
     </div>

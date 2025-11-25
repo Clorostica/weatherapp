@@ -2,5 +2,20 @@
   "writeCity": "Escribe la ciudad",
   "changeLang": "Cambiar idioma",
   "today": "Hoy",
-  "tomorrow": "Mañana"
+  "tomorrow": "Mañana",
+  "weatherRadar": "Radar Meteorológico",
+  "weatherForecast": "Pronóstico del Tiempo",
+  "pressEnter": "Presiona enter",
+  "humidity": "Humedad",
+  "wind": "Viento",
+  "feelsLike": "Sensación",
+  "type": "Tipo:",
+  "precipitation": "Precipitación",
+  "clouds": "Nubes",
+  "temperature": "Temperatura",
+  "zoom": "Zoom:",
+  "pause": "Pausar",
+  "animation": "Animación",
+  "reset": "Reset",
+  "coordinates": "Coordenadas"
 }

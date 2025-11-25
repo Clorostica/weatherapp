@@ -1,13 +1,21 @@
-import React, {
-  createContext,
-  useState,
-  useContext,
-  useMemo,
-  useCallback,
-} from "react";
+import { useState, useMemo, useCallback } from "react";
 import { translations } from "./Translations";
+import { LangContext } from "./LangContextValue";
 
-const LangContext = createContext(null);
+let safeTranslations = {
+  en: {},
+  es: {},
+};
+
+try {
+  if (translations && translations.en && translations.es) {
+    safeTranslations = translations;
+  } else {
+    console.error("Error: Translations not loaded correctly", translations);
+  }
+} catch (error) {
+  console.error("Error loading translations:", error);
+}
 
 export const LangProvider = ({ children }) => {
   const [lang, setLang] = useState("en");
@@ -16,24 +24,41 @@ export const LangProvider = ({ children }) => {
     setLang((prev) => (prev === "en" ? "es" : "en"));
   }, []);
 
-  const contextValue = useMemo(
-    () => ({
-      lang,
-      switchLang,
-      t: translations[lang],
-    }),
-    [lang]
-  );
+  const contextValue = useMemo(() => {
+    try {
+      const currentLang = lang || "en";
+      const translationsForLang =
+        safeTranslations[currentLang] || safeTranslations.en || {};
 
-  return (
-    <LangContext.Provider value={contextValue}>{children}</LangContext.Provider>
-  );
-};
+      return {
+        lang: currentLang,
+        switchLang,
+        t: translationsForLang,
+      };
+    } catch (error) {
+      console.error("Error in LangProvider contextValue:", error);
 
-export const useLang = () => {
-  const context = useContext(LangContext);
-  if (!context) {
-    throw new Error("❌ useLang must be used inside of a LangProvider");
+      return {
+        lang: "en",
+        switchLang,
+        t: safeTranslations.en || {},
+      };
+    }
+  }, [lang, switchLang]);
+
+  if (!children) {
+    console.warn("LangProvider: children is undefined");
+    return null;
   }
-  return context;
+
+  try {
+    return (
+      <LangContext.Provider value={contextValue}>
+        {children}
+      </LangContext.Provider>
+    );
+  } catch (error) {
+    console.error("Error rendering LangProvider:", error);
+    return <div>Error loading language context</div>;
+  }
 };

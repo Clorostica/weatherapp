@@ -1,86 +1,128 @@
-import { useRef, useEffect } from "react";
-import HotVideo from "../videos/Hot.mp4";
-import ClearVideo from "../videos/Clear.mp4";
-import CloudyVideo from "../videos/Clouds.mp4";
-import RainyVideo from "../videos/Rain.mp4";
-import StormyVideo from "../videos/Stormy.mp4";
-import SnowyVideo from "../videos/Snowy.mp4";
-import ColdVideo from "../videos/Cold.mp4";
-import NightVideo from "../videos/Night.mp4";
+import { useRef, useEffect, useCallback } from "react";
 
-const BackgroundWrapper = ({ weatherType, children }) => {
+// Lazy load videos - solo se cargan cuando se necesitan
+const videoImports = {
+  hot: () => import("../videos/Hot.mp4"),
+  sunny: () => import("../videos/Clear.mp4"),
+  cloudy: () => import("../videos/Clouds.mp4"),
+  rainy: () => import("../videos/Rain.mp4"),
+  stormy: () => import("../videos/Stormy.mp4"),
+  snowy: () => import("../videos/Snowy.mp4"),
+  cold: () => import("../videos/Cold.mp4"),
+  night: () => import("../videos/Night.mp4"),
+};
+
+const BackgroundWrapper = ({ weatherType = "sunny", children }) => {
   const videoRef = useRef(null);
+  const currentVideoSrcRef = useRef(null);
+  const videoCacheRef = useRef(new Map());
 
-  const getVideoSrc = (condition) => {
-    switch (condition) {
-      case "hot":
-        return HotVideo;
-      case "sunny":
-        return ClearVideo;
-      case "cloudy":
-        return CloudyVideo;
-      case "rainy":
-        return RainyVideo;
-      case "stormy":
-        return StormyVideo;
-      case "snowy":
-        return SnowyVideo;
-      case "cold":
-        return ColdVideo;
-      case "night":
-        return NightVideo;
-      case "default":
-        return ClearVideo;
-      default:
-        return ClearVideo;
+  const getVideoSrc = useCallback(async (condition) => {
+    if (videoCacheRef.current.has(condition)) {
+      return videoCacheRef.current.get(condition);
     }
-  };
+
+    const videoLoader = videoImports[condition] || videoImports.sunny;
+    try {
+      const module = await videoLoader();
+      const videoSrc = module.default;
+      videoCacheRef.current.set(condition, videoSrc);
+      return videoSrc;
+    } catch (error) {
+      console.error(`Error loading video for ${condition}:`, error);
+
+      if (condition !== "sunny") {
+        return getVideoSrc("sunny");
+      }
+      return null;
+    }
+  }, []);
+
   useEffect(() => {
     const video = videoRef.current;
-    if (video && weatherType) {
-      const videoSrc = getVideoSrc(weatherType);
-      video.src = videoSrc;
-      video.load();
+    if (!video) return;
+
+    const currentWeatherType = weatherType || "sunny";
+
+    const handleCanPlay = () => {
       video.play().catch((error) => {
-        console.log("Error reproduciendo video:", error);
+        if (error.name !== "AbortError" && error.name !== "NotAllowedError") {
+          console.error("Error reproduciendo video:", error);
+        }
       });
-    }
-  }, [weatherType]);
+    };
 
-  const containerStyle = {
-    position: "relative",
-    minHeight: "100vh",
-    padding: "40px",
-    color: "white",
-    overflow: "hidden",
-  };
+    const handleLoadedData = () => {
+      video.play().catch((error) => {
+        if (error.name !== "AbortError" && error.name !== "NotAllowedError") {
+          console.error("Error reproduciendo video:", error);
+        }
+      });
+    };
 
-  const videoStyle = {
-    position: "fixed",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    objectFit: "cover",
-    zIndex: -1,
-  };
+    const handleError = (e) => {
+      console.error("Error cargando video:", currentWeatherType, "Error:", e);
+    };
 
-  const contentStyle = {
-    position: "relative",
-    zIndex: 1,
-  };
+    const loadVideo = async () => {
+      const videoSrc = await getVideoSrc(currentWeatherType);
+
+      if (!videoSrc) return;
+
+      if (currentVideoSrcRef.current === videoSrc) {
+        return;
+      }
+
+      currentVideoSrcRef.current = videoSrc;
+
+      video.pause();
+
+      video.removeEventListener("canplay", handleCanPlay);
+      video.removeEventListener("loadeddata", handleLoadedData);
+      video.removeEventListener("error", handleError);
+
+      video.src = videoSrc;
+      video.preload = "auto";
+      video.load();
+
+      video.addEventListener("canplay", handleCanPlay, { once: true });
+      video.addEventListener("loadeddata", handleLoadedData, { once: true });
+      video.addEventListener("error", handleError, { once: true });
+    };
+
+    loadVideo();
+
+    return () => {
+      if (video) {
+        video.removeEventListener("canplay", handleCanPlay);
+        video.removeEventListener("loadeddata", handleLoadedData);
+        video.removeEventListener("error", handleError);
+      }
+    };
+  }, [weatherType, getVideoSrc]);
 
   return (
-    <div style={containerStyle}>
+    <div className="width: 100vw">
       <video
         ref={videoRef}
-        style={videoStyle}
+        className="fixed -z-10"
+        style={{
+          top: 0,
+          left: 0,
+          width: "100vw",
+          height: "100vh",
+          objectFit: "cover",
+          objectPosition: "center center",
+          minWidth: "100%",
+          minHeight: "100%",
+        }}
         autoPlay
         loop
         muted
         playsInline
+        preload="auto"
       />
-      <div style={contentStyle}>{children}</div>
+      <div>{children}</div>
     </div>
   );
 };

@@ -157,7 +157,7 @@ const WeatherApp = ({ setWeatherData }) => {
   const containerClass = "w-full max-w-[95%] 2xl:max-w-[2000px] mx-auto";
 
   return (
-    <div style={{ width: "800px" }}>
+    <div className="w-full max-w-full">
       <div className={`${containerClass} search-sticky-wrapper`}>
         <Search onSearch={handleSearch} placeholder={t.writeCity} />
       </div>

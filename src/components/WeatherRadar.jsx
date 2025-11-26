@@ -122,6 +122,11 @@ const WeatherRadar = ({ lat, lon }) => {
   return (
     <div className="container">
       <h2 className="title text-2xl font-semibold ">{t.weatherRadar}</h2>
+      {lat && lon && (
+        <div className="text-center mb-3 text-white/60 text-xs gap-6">
+          {t.coordinates}: {lat.toFixed(2)}, {lon.toFixed(2)} | {t.zoom} {zoom}x
+        </div>
+      )}
       <div className="radar-controls-container">
         <div className="radar-control-group">
           <label className="radar-control-label">{t.type}</label>
@@ -135,7 +140,6 @@ const WeatherRadar = ({ lat, lon }) => {
             <option value="wind">{t.wind}</option>
           </select>
         </div>
-        {/* Control de zoom */}
         <div className="radar-control-group">
           <label className="radar-control-label">{t.zoom}</label>
           <div className="radar-zoom-controls">
@@ -174,12 +178,6 @@ const WeatherRadar = ({ lat, lon }) => {
           ↻ {t.reset}
         </button>
       </div>
-
-      {lat && lon && (
-        <div className="text-center mb-3 text-white/60 text-xs gap-6">
-          {t.coordinates}: {lat.toFixed(2)}, {lon.toFixed(2)} | {t.zoom} {zoom}x
-        </div>
-      )}
 
       <div className="radar-frame">
         <iframe

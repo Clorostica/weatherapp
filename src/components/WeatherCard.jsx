@@ -23,29 +23,29 @@ export const WeatherCard = memo(function WeatherCard({
         }}
       >
         {/* Icono con efecto glow */}
-        <div className="drop-shadow-[0_0_25px_rgba(255,255,255,0.3)]">
+        <div className="drop-shadow-[0_0_25px_rgba(255,255,255,0.3)] weather-icon-container">
           {getWeatherIcon(weather.weather[0].main, 120)}
         </div>
 
         {/* Ciudad */}
-        <h1 className="text-5xl font-bold text-white m-0 tracking-wide drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
+        <h1 className="weather-city-name text-5xl font-bold text-white m-0 tracking-wide drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]">
           {weather.name}
         </h1>
 
         {/* Descripción */}
-        <p className="capitalize text-xl font-medium text-white/90 m-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
+        <p className="weather-description capitalize text-xl font-medium text-white/90 m-0 drop-shadow-[0_2px_8px_rgba(0,0,0,0.3)]">
           {weather.weather[0].description}
         </p>
 
-        <div className="relative mt-2">
+        <div className="relative mt-2 weather-temp-container">
           <div className="absolute inset-0 bg-white/20 blur-3xl rounded-full scale-150" />
 
-          <h1 className="relative text-8xl font-black text-white m-0 tracking-tighter leading-none drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
+          <h1 className="relative weather-temp text-8xl font-black text-white m-0 tracking-tighter leading-none drop-shadow-[0_6px_20px_rgba(0,0,0,0.5)]">
             {Math.round(weather.main.temp)}°C
           </h1>
         </div>
 
-        <div className="flex gap-4 mt-4 w-full max-w-md">
+        <div className="flex gap-4 mt-4 w-full max-w-md weather-info-cards">
           <div className="flex-1 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
             <p className="text-white/60 text-sm font-medium mb-1">
               {t.humidity}

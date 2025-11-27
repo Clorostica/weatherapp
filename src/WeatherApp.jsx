@@ -158,9 +158,8 @@ const WeatherApp = ({ setWeatherData }) => {
 
   return (
     <>
-      <div className="search-always-full ">
-        <Search onSearch={handleSearch} placeholder={t.writeCity} />
-      </div>
+      <Search onSearch={handleSearch} placeholder={t.writeCity} />
+
       <br />
 
       {hasSearched && weather && (

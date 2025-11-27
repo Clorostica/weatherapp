@@ -244,38 +244,27 @@ body {
   z-index: 1;
   position: relative;
 }
-
-.search-input {
-  color: white ;
-}
-
+/* search */
 .search-input::placeholder {
   color: rgba(255, 255, 255, 0.8) ;
   opacity: 1;
 }
-.search-always-full {
-  width: clamp(300px, 90%, 800px);
-  margin-left: auto;
-  margin-right: auto;
-}
+
 .search-container {
-  width: 100%;
-  min-height: 150px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  width: 800px !important;
+  max-width: 800px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+.search-container > div:first-child {
+  width: 800px !important;
 }
 
-/* Barra de búsqueda fija */
-.search-sticky-wrapper {
-  position: sticky;
-  top: 0;
-  z-index: 999;
-  background: transparent;
-  padding-top: 20px;
-  padding-bottom: 20px;
+.search-input {
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
+
 /* weather*/
 .weather-card {
   padding: 12px;

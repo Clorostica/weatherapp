@@ -35,8 +35,7 @@ const Search = ({ onSearch }) => {
         <div
           style={{
             position: "relative",
-            flex: "3",
-            minWidth: "0",
+
             width: "100%",
           }}
         >

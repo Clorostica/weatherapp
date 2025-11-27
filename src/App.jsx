@@ -22,29 +22,38 @@ const AppContent = memo(() => {
     const temp = weatherData.main.temp;
 
     let weatherType;
-    switch (condition) {
-      case "clear":
-        weatherType = temp > 25 ? "hot" : "sunny";
-        break;
-      case "clouds":
-        weatherType = "cloudy";
-        break;
-      case "rain":
-      case "drizzle":
-        weatherType = "rainy";
-        break;
-      case "thunderstorm":
-        weatherType = "stormy";
-        break;
-      case "snow":
-        weatherType = temp < 5 ? "cold" : "snowy";
-        break;
-      case "mist":
-      case "fog":
-        weatherType = "cloudy";
-        break;
-      default:
-        weatherType = "sunny";
+
+    // Prioridad: temperatura primero
+    if (temp < 0) {
+      weatherType = "snowy";
+    } else if (temp > 20) {
+      weatherType = "hot";
+    } else {
+      // Si la temperatura está entre 0 y 20, usar la condición del clima
+      switch (condition) {
+        case "clear":
+          weatherType = "sunny";
+          break;
+        case "clouds":
+          weatherType = "cloudy";
+          break;
+        case "rain":
+        case "drizzle":
+          weatherType = "rainy";
+          break;
+        case "thunderstorm":
+          weatherType = "stormy";
+          break;
+        case "snow":
+          weatherType = "snowy";
+          break;
+        case "mist":
+        case "fog":
+          weatherType = "cloudy";
+          break;
+        default:
+          weatherType = "sunny";
+      }
     }
 
     if (weatherType !== savedWeatherType) {
@@ -60,7 +69,10 @@ const AppContent = memo(() => {
       <br />
       <WeatherApp setWeatherData={setWeatherData} />
       <br />
-      <footer className="mt-10 footer-description text-center">
+      <footer
+        className="mt-10 mb-16 footer-description text-center"
+        style={{ marginBottom: "80px" }}
+      >
         Created with <span style={{ color: "#9333ea" }}>♥</span> by{" "}
         <a
           href="https://github.com/Clorostica"
@@ -72,6 +84,7 @@ const AppContent = memo(() => {
           Clorostica
         </a>
       </footer>
+
       <LanguageSwitcher />
     </BackgroundWrapper>
   );

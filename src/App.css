@@ -27,11 +27,16 @@ body {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.25));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(
+    135deg,
+    rgba(121, 121, 121, 0.55),
+    rgba(255, 255, 255, 0.85)
+  );
+  
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow: hidden;
 }
@@ -306,6 +311,9 @@ body {
   pointer-events: none;
   animation: shimmer 8s ease-in-out infinite;
   z-index: 0;
+}
+.weather-description{
+  font-size: 1.5rem;
 }
 /* lang-switch */
 .lang-switcher-container {

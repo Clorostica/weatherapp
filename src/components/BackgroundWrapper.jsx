@@ -1,6 +1,5 @@
 import { useRef, useEffect, useCallback } from "react";
 
-// Lazy load videos - solo se cargan cuando se necesitan
 const videoImports = {
   hot: () => import("../videos/Hot.mp4"),
   sunny: () => import("../videos/Clear.mp4"),

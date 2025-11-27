@@ -1,11 +1,12 @@
 import { useState, memo, useMemo } from "react";
+import { LangProvider } from "./components/LangContext";
 import WeatherApp from "./WeatherApp";
 import BackgroundWrapper from "./components/BackgroundWrapper";
 import LanguageSwitcher from "./components/LanguageSwitcher";
-import { LangProvider } from "./components/LangContext";
 import ErrorBoundary from "./components/ErrorBoundary";
 
 import "./App.css";
+import "./query.css";
 
 const AppContent = memo(() => {
   const [weatherData, setWeatherData] = useState(null);

@@ -30,8 +30,6 @@ const Search = ({ onSearch }) => {
           display: "flex",
           gap: "12px",
           alignItems: "center",
-          paddingLeft: "24px",
-          paddingRight: "32px",
         }}
       >
         <div

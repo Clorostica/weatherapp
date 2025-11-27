@@ -251,14 +251,12 @@ body {
 }
 
 .search-container {
-  width: 800px !important;
-  max-width: 800px !important;
+  width: 700px !important;
+  max-width: 700px !important;
   margin-left: auto !important;
   margin-right: auto !important;
 }
-.search-container > div:first-child {
-  width: 800px !important;
-}
+
 
 .search-input {
   width: 100% !important;

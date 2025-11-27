@@ -105,7 +105,18 @@ const WeatherRadar = ({ lat, lon }) => {
     const radarPath =
       radarType === "rr" ? "rr/compact" : `${radarType}/compact`;
 
-    return `${baseUrl}/${radarPath}?${params.toString()}`;
+    const url = `${baseUrl}/${radarPath}?${params.toString()}`;
+
+    // Asegurar que la URL esté limpia y no contenga referencias a localhost
+    if (url.includes("localhost")) {
+      console.warn("URL contains localhost, cleaning...");
+      return url
+        .replace(/localhost:\d+/gi, "")
+        .replace(/http:\/\/\/+/g, "https://")
+        .replace(/\/\/+/g, "/");
+    }
+
+    return url;
   }, [lat, lon, zoom, radarType, isAnimated]);
 
   const [radarUrl, setRadarUrl] = useState(buildRadarUrl());
@@ -188,6 +199,9 @@ const WeatherRadar = ({ lat, lon }) => {
           sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
           referrerPolicy="no-referrer"
           title="Weather Radar"
+          allow="geolocation"
+          style={{ isolation: "isolate" }}
+          data-origin="https://radar.wo-cloud.com"
         />
       </div>
     </div>

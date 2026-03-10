@@ -77,17 +77,44 @@ body {
 }
 
 /* ─────────────────────────────────────────
-   WEATHER CARD — Apple Weather style
+   WEATHER CARD — two-column hero layout
 ───────────────────────────────────────── */
 
-/* Hero — free-floating, no container */
-.wc-hero-free {
+.wc-hero-card {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0;
+  padding: 28px 32px;
+}
+
+.wc-hero-left {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 24px 0 16px;
   gap: 4px;
+  padding-right: 32px;
+}
+
+.wc-vdivider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(255, 255, 255, 0.12);
+  flex-shrink: 0;
+}
+
+.wc-stats-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 32px;
+  min-width: 180px;
+}
+
+.wc-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
 }
 
 .wc-my-location {
@@ -100,21 +127,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.12em;
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
-  margin-top: 16px;
-  margin-bottom: 12px;
-}
-
-.wc-temp-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 4px 0 6px;
-}
-
-.wc-hero-icon-wrap {
-  filter: drop-shadow(0 0 28px rgba(255, 255, 255, 0.25));
-  display: flex;
-  align-items: center;
+  margin-bottom: 8px;
 }
 
 .wc-city {
@@ -148,114 +161,33 @@ body {
 }
 
 .wc-hl {
-  margin-bottom: 10px;
+  margin-bottom: 4px;
   font-size: 0.85rem;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.55);
   text-shadow: 0 1px 8px rgba(0, 0, 0, 0.5);
 }
 
-.wc-condition-text {
-  font-size: 0.82rem;
+.wc-stat-label {
+  font-size: 0.62rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.72);
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-}
-
-.wc-divider {
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.12) 15%,
-    rgba(255, 255, 255, 0.12) 85%,
-    transparent
-  );
-  margin: 0 0 18px;
-}
-
-/* Data panels grid */
-.wc-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.wc-panel {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-top-color: rgba(255, 255, 255, 0.24);
-  border-radius: 16px;
-  padding: 13px 15px 11px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.wc-panel-label {
-  font-size: 0.6rem;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.45);
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  margin-bottom: 5px;
+  white-space: nowrap;
 }
 
-.wc-panel-value {
-  font-size: 1.5rem;
+.wc-stat-value {
+  font-size: 0.95rem;
   font-weight: 500;
   color: #fff;
-  line-height: 1;
-  letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .wc-unit {
   font-size: 0.78em;
   font-weight: 400;
   opacity: 0.6;
-}
-
-.wc-panel-sub {
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.4);
-  margin-top: 4px;
-  line-height: 1.35;
-}
-
-.wc-wind-dir {
-  display: inline-flex;
-  align-items: center;
-}
-
-.wc-panel--sun .wc-sun-row {
-  display: flex;
-  gap: 16px;
-  margin-top: 4px;
-}
-
-.wc-sun-item {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.wc-sun-arrow {
-  font-size: 1.1rem;
-  font-weight: 300;
-  color: rgba(255, 255, 255, 0.55);
-  line-height: 1;
-}
-
-.wc-sun-time {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: #fff;
-  line-height: 1.2;
-  letter-spacing: -0.01em;
 }
 
 /* ─────────────────────────────────────────
@@ -984,23 +916,11 @@ body {
     padding: 24px 16px 80px;
   }
 
-  /* Reorder: hourly before condition+panels */
-  .wc-hero-free {
-    order: 1;
-  }
-  .hourly-outer {
-    order: 2;
-  }
-  .wc-panels-container {
-    order: 3;
-  }
-  .three-col-grid {
-    order: 4;
-  }
-
-  .hourly-outer {
-    width: 100%;
-  }
+  /* Section order: hero → hourly → three-col → radar */
+  .wc-hero-card   { order: 1; }
+  .hourly-outer   { order: 2; width: 100%; }
+  .three-col-grid { order: 3; }
+  .radar-outer    { order: 4; width: 100%; }
 
   .three-col-grid {
     grid-template-columns: 1fr;
@@ -1015,22 +935,6 @@ body {
     padding: 18px 20px;
     border-radius: 18px;
     margin-bottom: 12px;
-  }
-
-  .wc-hero-free {
-    padding: 14px 0 10px;
-  }
-
-  .wc-grid {
-    gap: 8px;
-  }
-
-  .wc-panel {
-    padding: 11px 13px 9px;
-  }
-
-  .wc-panel-value {
-    font-size: 1.3rem;
   }
 
   .hourly-item {
@@ -1049,22 +953,43 @@ body {
     font-size: 0.74rem;
   }
 
-  .radar-zoom-pill {
-    height: 30px;
-  }
-
-  .radar-zoom-btn {
-    width: 28px;
-  }
+  .radar-zoom-pill { height: 30px; }
+  .radar-zoom-btn  { width: 28px; }
 }
 
 /* ─────────────────────────────────────────
    RESPONSIVE — MOBILE (≤ 480px)
 ───────────────────────────────────────── */
+@media (max-width: 600px) {
+  .wc-hero-card {
+    flex-direction: column !important;
+    align-items: center;
+    text-align: center;
+    padding: 20px 18px;
+  }
+  .wc-hero-left { padding-right: 0; align-items: center; }
+  .wc-vdivider { width: 100%; height: 1px; align-self: auto; margin: 16px 0; }
+  .wc-stats-right {
+    padding-left: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 20px;
+    min-width: unset;
+  }
+  .wc-stat-row { flex-direction: column; align-items: center; gap: 3px; }
+}
+
 @media (max-width: 480px) {
   .app-layout {
     padding: 16px 12px 80px;
   }
+
+  /* Section order — radar always last */
+  .wc-hero-card   { order: 1; }
+  .hourly-outer   { order: 2; width: 100%; }
+  .three-col-grid { order: 3; }
+  .radar-outer    { order: 4; width: 100%; }
 
   .search-container {
     width: 100%;
@@ -1077,33 +1002,21 @@ body {
     margin-bottom: 10px;
   }
 
-  .wc-hero-free {
-    padding: 10px 0 8px;
-    gap: 2px;
+  /* Bigger temp on mobile */
+  .wc-temp {
+    font-size: clamp(5.5rem, 22vw, 7rem);
   }
 
-  .wc-grid {
-    gap: 7px;
+  .wc-my-location {
+    font-size: 0.78rem;
+    margin-bottom: 8px;
   }
 
-  .wc-panel {
-    padding: 10px 10px 8px;
-    border-radius: 12px;
+  .wc-city {
+    font-size: clamp(1.8rem, 7vw, 2.6rem);
   }
 
-  .wc-panel-value {
-    font-size: 1.1rem;
-  }
-
-  .wc-panel-sub {
-    font-size: 0.62rem;
-  }
-
-  .wc-panel--sun .wc-sun-row {
-    gap: 10px;
-  }
-
-  .wc-sun-time {
+  .wc-stat-value {
     font-size: 0.9rem;
   }
 
@@ -1113,11 +1026,6 @@ body {
     margin-bottom: 11px;
   }
 
-  .wc-condition-text {
-    font-size: 0.75rem;
-    letter-spacing: 0.1em;
-  }
-
   .hourly-item {
     padding: 7px 8px;
     min-width: 46px;
@@ -1125,22 +1033,15 @@ body {
     border-radius: 10px;
   }
 
-  .hourly-time {
-    font-size: 0.56rem;
-  }
-
-  .hourly-temp {
-    font-size: 0.78rem;
-  }
+  .hourly-time { font-size: 0.56rem; }
+  .hourly-temp { font-size: 0.78rem; }
 
   .fc-row {
     padding: 8px 0;
     gap: 8px;
   }
 
-  .fc-row-desc {
-    display: none;
-  }
+  .fc-row-desc { display: none; }
 
   .fc-row-day {
     min-width: 34px;
@@ -1148,21 +1049,12 @@ body {
   }
 
   .fc-row-min,
-  .fc-row-max {
-    font-size: 0.75rem;
-  }
+  .fc-row-max { font-size: 0.75rem; }
 
-  .aq-number {
-    font-size: 2.6rem;
-  }
+  .aq-number { font-size: 2.6rem; }
+  .aq-label  { font-size: 0.8rem; }
 
-  .aq-label {
-    font-size: 0.8rem;
-  }
-
-  .precip-chart {
-    height: 80px;
-  }
+  .precip-chart { height: 80px; }
 
   .radar-frame {
     height: 220px;

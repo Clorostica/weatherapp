@@ -23,7 +23,6 @@ const AppContent = memo(() => {
 
     let weatherType;
 
-    // Prioridad: temperatura primero
     if (temp < 0) {
       weatherType = "snowy";
     } else if (temp > 20) {
@@ -66,26 +65,22 @@ const AppContent = memo(() => {
 
   return (
     <BackgroundWrapper weatherType={currentWeatherType}>
-      <br />
       <WeatherApp setWeatherData={setWeatherData} />
-      <br />
+      <LanguageSwitcher />
       <footer
-        className="mt-10 mb-16 footer-description text-center"
-        style={{ marginBottom: "80px" }}
+        className="footer-description"
+        style={{ textAlign: "center", padding: "0 20px 80px" }}
       >
         Created with <span style={{ color: "#9333ea" }}>♥</span> by{" "}
         <a
           href="https://github.com/Clorostica"
           target="_blank"
           rel="noopener noreferrer"
-          className="hover:opacity-80 transition-opacity no-underline"
           style={{ color: "#9333ea" }}
         >
           Clorostica
         </a>
       </footer>
-
-      <LanguageSwitcher />
     </BackgroundWrapper>
   );
 });

@@ -101,7 +101,8 @@ const BackgroundWrapper = ({ weatherType = "sunny", children }) => {
   }, [weatherType, getVideoSrc]);
 
   return (
-    <div style={{ width: "100%", minHeight: "100vh" }}>
+    <div className="bg-wrapper" style={{ width: "100%", minHeight: "100vh" }}>
+      <div className="bg-overlay" />
       <video
         ref={videoRef}
         className="fixed -z-10"
@@ -121,7 +122,7 @@ const BackgroundWrapper = ({ weatherType = "sunny", children }) => {
         playsInline
         preload="auto"
       />
-      <div style={{ width: "100%" }}>{children}</div>
+      <div style={{ width: "100%", position: "relative", zIndex: 1 }}>{children}</div>
     </div>
   );
 };

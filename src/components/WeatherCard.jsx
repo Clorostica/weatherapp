@@ -1,5 +1,7 @@
-import { memo } from "react";
+import { memo, lazy, Suspense } from "react";
 import { useLang } from "./useLang";
+
+const CaelChar = lazy(() => import("./Cael").then((m) => ({ default: m.Cael })));
 
 const formatSunTime = (timestamp, lang) =>
   new Date(timestamp * 1000).toLocaleTimeString(
@@ -7,18 +9,29 @@ const formatSunTime = (timestamp, lang) =>
     { hour: "2-digit", minute: "2-digit" }
   );
 
+function getOutfit(weather) {
+  const code = weather.weather[0].id;
+  const temp = weather.main.temp;
+  if (temp < 0 || (code >= 600 && code <= 622)) return "snowy";
+  if (temp > 28) return "hot";
+  if (code >= 200 && code <= 232) return "stormy";
+  if (code >= 300 && code <= 531) return "rainy";
+  return "casual";
+}
+
 export const WeatherCard = memo(function WeatherCard({ weather }) {
   const { t, lang } = useLang();
   if (!weather) return null;
 
   const { name, sys, main, wind } = weather;
-  const isEs = lang === "es";
+  const isEs   = lang === "es";
+  const outfit = getOutfit(weather);
   const sunrise = sys?.sunrise ? formatSunTime(sys.sunrise, lang) : null;
   const sunset  = sys?.sunset  ? formatSunTime(sys.sunset,  lang) : null;
 
   return (
     <div className="container wc-hero-card">
-      {/* Left column — location + temp */}
+      {/* Left column — location + temp + Cael */}
       <div className="wc-hero-left">
         <span className="wc-my-location">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
@@ -28,7 +41,17 @@ export const WeatherCard = memo(function WeatherCard({ weather }) {
         </span>
         <h1 className="wc-city">{name}</h1>
         {sys?.country && <span className="wc-country-badge">{sys.country}</span>}
-        <div className="wc-temp">{Math.round(main.temp)}°</div>
+
+        {/* Temperature + Cael side by side */}
+        <div className="wc-temp-cael">
+          <div className="wc-temp">{Math.round(main.temp)}°</div>
+          <div className={`cael-wrap cael-wrap--${outfit}`}>
+            <Suspense fallback={null}>
+              <CaelChar weatherType={outfit} />
+            </Suspense>
+          </div>
+        </div>
+
         <span className="wc-hl">
           {isEs ? "Máx" : "H"}&nbsp;{Math.round(main.temp_max)}°&ensp;·&ensp;
           {isEs ? "Mín" : "L"}&nbsp;{Math.round(main.temp_min)}°

@@ -2,7 +2,6 @@ import { useCallback, useState, useEffect, lazy, Suspense } from "react";
 import { useLang } from "./components/useLang";
 import getWeatherIcon from "./components/IconWeather.js";
 import Search from "./components/Search";
-
 const WeatherCard = lazy(() =>
   import("./components/WeatherCard").then((m) => ({ default: m.WeatherCard })),
 );
@@ -25,6 +24,15 @@ const Precipitation = lazy(() =>
   })),
 );
 const WeatherRadar = lazy(() => import("./components/WeatherRadar"));
+const WeatherMood = lazy(() =>
+  import("./components/WeatherMood").then((m) => ({ default: m.WeatherMood }))
+);
+const WeatherNotifications = lazy(() =>
+  import("./components/WeatherNotifications").then((m) => ({ default: m.WeatherNotifications }))
+);
+const WeatherCompare = lazy(() =>
+  import("./components/WeatherCompare").then((m) => ({ default: m.WeatherCompare }))
+);
 
 const WeatherApp = ({ setWeatherData }) => {
   const { t, lang } = useLang();
@@ -36,6 +44,7 @@ const WeatherApp = ({ setWeatherData }) => {
   const [hasSearched, setHasSearched] = useState(false);
 
   const OPEN_WEATHER_API_KEY = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
+
 
   const handleSearch = useCallback(
     async (cityQuery) => {
@@ -167,14 +176,39 @@ const WeatherApp = ({ setWeatherData }) => {
 
   return (
     <div className="app-layout">
+      {/* ── Header ── */}
+      <header className="app-header">
+        <Suspense fallback={null}>
+          <WeatherNotifications weather={weather} />
+        </Suspense>
+      </header>
+
       <div className="search-always-full">
         <Search onSearch={handleSearch} placeholder={t.writeCity} />
       </div>
+
+      {/* ── Landing tagline (before first search) ── */}
+      {!hasSearched && (
+        <div className="landing-hero">
+          <p className="landing-tagline">
+            {lang === "es"
+              ? "Clima en tiempo real, presentado con estilo."
+              : "Real-time weather, beautifully presented."}
+          </p>
+        </div>
+      )}
 
       {/* ── Current weather ── */}
       {hasSearched && weather && (
         <Suspense fallback={<div style={{ minHeight: 200 }} />}>
           <WeatherCard weather={weather} getWeatherIcon={getWeatherIcon} />
+        </Suspense>
+      )}
+
+      {/* ── Mood of the day ── */}
+      {hasSearched && weather && (
+        <Suspense fallback={null}>
+          <WeatherMood weather={weather} />
         </Suspense>
       )}
 
@@ -224,6 +258,13 @@ const WeatherApp = ({ setWeatherData }) => {
             <WeatherRadar lat={weather.coord.lat} lon={weather.coord.lon} />
           </Suspense>
         </div>
+      )}
+
+      {/* ── Compare cities (always last) ── */}
+      {hasSearched && (
+        <Suspense fallback={null}>
+          <WeatherCompare apiKey={OPEN_WEATHER_API_KEY} />
+        </Suspense>
       )}
     </div>
   );

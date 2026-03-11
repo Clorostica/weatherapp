@@ -19,40 +19,33 @@ const AppContent = memo(() => {
     if (!weatherData) return savedWeatherType;
 
     const condition = weatherData.weather[0].main.toLowerCase();
-    const temp = weatherData.main.temp;
+    const temp      = weatherData.main.temp;
+    const now       = Date.now() / 1000;
+    const sunrise   = weatherData.sys?.sunrise ?? 0;
+    const sunset    = weatherData.sys?.sunset  ?? 0;
+    const isNight   = sunrise && sunset
+      ? (now < sunrise || now > sunset)
+      : (new Date().getHours() < 6 || new Date().getHours() >= 20);
 
     let weatherType;
 
-    if (temp < 0) {
+    // Night always takes priority when no extreme conditions
+    if (isNight && condition !== "thunderstorm" && temp >= 0) {
+      weatherType = "night";
+    } else if (temp < 0 || condition === "snow") {
       weatherType = "snowy";
-    } else if (temp > 20) {
+    } else if (condition === "thunderstorm") {
+      weatherType = "stormy";
+    } else if (condition === "rain" || condition === "drizzle") {
+      weatherType = "rainy";
+    } else if (condition === "mist" || condition === "fog" || condition === "haze" || condition === "smoke") {
+      weatherType = "fog";
+    } else if (temp > 25) {
       weatherType = "hot";
+    } else if (condition === "clouds") {
+      weatherType = "cloudy";
     } else {
-      // Si la temperatura está entre 0 y 20, usar la condición del clima
-      switch (condition) {
-        case "clear":
-          weatherType = "sunny";
-          break;
-        case "clouds":
-          weatherType = "cloudy";
-          break;
-        case "rain":
-        case "drizzle":
-          weatherType = "rainy";
-          break;
-        case "thunderstorm":
-          weatherType = "stormy";
-          break;
-        case "snow":
-          weatherType = "snowy";
-          break;
-        case "mist":
-        case "fog":
-          weatherType = "cloudy";
-          break;
-        default:
-          weatherType = "sunny";
-      }
+      weatherType = "sunny";
     }
 
     if (weatherType !== savedWeatherType) {

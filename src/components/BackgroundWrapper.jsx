@@ -1,14 +1,15 @@
 import { useRef, useEffect, useCallback } from "react";
 
 const videoImports = {
-  hot: () => import("../videos/Hot.mp4"),
-  sunny: () => import("../videos/Clear.mp4"),
-  cloudy: () => import("../videos/Clouds.mp4"),
-  rainy: () => import("../videos/Rain.mp4"),
-  stormy: () => import("../videos/Stormy.mp4"),
-  snowy: () => import("../videos/Snowy.mp4"),
-  cold: () => import("../videos/Cold.mp4"),
-  night: () => import("../videos/Night.mp4"),
+  hot:    () => import("../videos/hot.mp4"),
+  sunny:  () => import("../videos/Clear.mp4"),
+  sun:    () => import("../videos/sun.mp4"),
+  cloudy: () => import("../videos/cloudy.mp4"),
+  rainy:  () => import("../videos/rain.mp4"),
+  stormy: () => import("../videos/storm.mp4"),
+  snowy:  () => import("../videos/snow.mp4"),
+  fog:    () => import("../videos/fog.mp4"),
+  night:  () => import("../videos/night.mp4"),
 };
 
 const BackgroundWrapper = ({ weatherType = "sunny", children }) => {

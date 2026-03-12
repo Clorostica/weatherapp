@@ -1,105 +1,50 @@
-import { useRef, useEffect, useCallback } from "react";
+import { useRef, useEffect } from "react";
 
-const videoImports = {
-  hot:    () => import("../videos/Hot.mp4"),
-  sunny:  () => import("../videos/Clear.mp4"),
-  sun:    () => import("../videos/sun.mp4"),
-  cloudy: () => import("../videos/cloudy.mp4"),
-  rainy:  () => import("../videos/Rain.mp4"),
-  stormy: () => import("../videos/storm.mp4"),
-  snowy:  () => import("../videos/snow.mp4"),
-  fog:    () => import("../videos/fog.mp4"),
-  night:  () => import("../videos/Night.mp4"),
+import hotVideo    from "../videos/Hot.mp4";
+import clearVideo  from "../videos/Clear.mp4";
+import sunVideo    from "../videos/sun.mp4";
+import cloudyVideo from "../videos/cloudy.mp4";
+import rainyVideo  from "../videos/Rain.mp4";
+import stormyVideo from "../videos/storm.mp4";
+import snowyVideo  from "../videos/snow.mp4";
+import fogVideo    from "../videos/fog.mp4";
+import nightVideo  from "../videos/Night.mp4";
+
+const videoSources = {
+  hot:    hotVideo,
+  sunny:  clearVideo,
+  sun:    sunVideo,
+  cloudy: cloudyVideo,
+  rainy:  rainyVideo,
+  stormy: stormyVideo,
+  snowy:  snowyVideo,
+  fog:    fogVideo,
+  night:  nightVideo,
 };
 
 const BackgroundWrapper = ({ weatherType = "sunny", children }) => {
   const videoRef = useRef(null);
   const currentVideoSrcRef = useRef(null);
-  const videoCacheRef = useRef(new Map());
-
-  const getVideoSrc = useCallback(async (condition) => {
-    if (videoCacheRef.current.has(condition)) {
-      return videoCacheRef.current.get(condition);
-    }
-
-    const videoLoader = videoImports[condition] || videoImports.sunny;
-    try {
-      const module = await videoLoader();
-      const videoSrc = module.default;
-      videoCacheRef.current.set(condition, videoSrc);
-      return videoSrc;
-    } catch (error) {
-      console.error(`Error loading video for ${condition}:`, error);
-
-      if (condition !== "sunny") {
-        return getVideoSrc("sunny");
-      }
-      return null;
-    }
-  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const currentWeatherType = weatherType || "sunny";
+    const condition = weatherType || "sunny";
+    const videoSrc = videoSources[condition] || videoSources.sunny;
 
-    const handleCanPlay = () => {
-      video.play().catch((error) => {
-        if (error.name !== "AbortError" && error.name !== "NotAllowedError") {
-          console.error("Error reproduciendo video:", error);
-        }
-      });
-    };
+    if (currentVideoSrcRef.current === videoSrc) return;
+    currentVideoSrcRef.current = videoSrc;
 
-    const handleLoadedData = () => {
-      video.play().catch((error) => {
-        if (error.name !== "AbortError" && error.name !== "NotAllowedError") {
-          console.error("Error reproduciendo video:", error);
-        }
-      });
-    };
-
-    const handleError = (e) => {
-      console.error("Error cargando video:", currentWeatherType, "Error:", e);
-    };
-
-    const loadVideo = async () => {
-      const videoSrc = await getVideoSrc(currentWeatherType);
-
-      if (!videoSrc) return;
-
-      if (currentVideoSrcRef.current === videoSrc) {
-        return;
+    video.pause();
+    video.src = videoSrc;
+    video.load();
+    video.play().catch((error) => {
+      if (error.name !== "AbortError" && error.name !== "NotAllowedError") {
+        console.error("Error reproduciendo video:", error);
       }
-
-      currentVideoSrcRef.current = videoSrc;
-
-      video.pause();
-
-      video.removeEventListener("canplay", handleCanPlay);
-      video.removeEventListener("loadeddata", handleLoadedData);
-      video.removeEventListener("error", handleError);
-
-      video.src = videoSrc;
-      video.preload = "auto";
-      video.load();
-
-      video.addEventListener("canplay", handleCanPlay, { once: true });
-      video.addEventListener("loadeddata", handleLoadedData, { once: true });
-      video.addEventListener("error", handleError, { once: true });
-    };
-
-    loadVideo();
-
-    return () => {
-      if (video) {
-        video.removeEventListener("canplay", handleCanPlay);
-        video.removeEventListener("loadeddata", handleLoadedData);
-        video.removeEventListener("error", handleError);
-      }
-    };
-  }, [weatherType, getVideoSrc]);
+    });
+  }, [weatherType]);
 
   return (
     <div className="bg-wrapper" style={{ width: "100%", minHeight: "100vh" }}>

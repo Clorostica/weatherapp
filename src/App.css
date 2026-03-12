@@ -118,16 +118,18 @@ body {
   to   { opacity: 1; }
 }
 
-/* Force visible glass on search and notification switch.
-   glass-surface--svg uses light-dark() which gives a BLACK tint in dark mode
-   (invisible against the dark video). Override to always use white tint. */
+/* Permanent glass style for search and notification switch.
+   The SVG variant uses light-dark() which is invisible on dark videos.
+   These overrides guarantee a frosted-glass appearance in all conditions. */
 .search-always-full .glass-surface,
 .notif-controls .glass-surface {
-  background: rgba(255, 255, 255, 0.14) !important;
-  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  background:         rgba(255, 255, 255, 0.18) !important;
+  backdrop-filter:    blur(16px) saturate(1.6)  !important;
+  -webkit-backdrop-filter: blur(16px) saturate(1.6) !important;
+  border:             1px solid rgba(255, 255, 255, 0.28) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.25),
-    0 4px 24px rgba(0, 0, 0, 0.18) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 4px 24px rgba(0, 0, 0, 0.22) !important;
 }
 
 /* ─────────────────────────────────────────

@@ -2041,35 +2041,6 @@ body {
   .wm-emoji   { font-size: 2rem; }
   .wm-mood    { font-size: 1.2rem; }
 
-  /* ── WeatherCompare — stack slots vertically ── */
-  .wcc-slots {
-    flex-direction: column;
-    gap: 0;
-  }
-  .wcc-vs-badge {
-    flex-direction: row;
-    width: 100%;
-    padding: 4px 12px;
-  }
-  .wcc-vs-line {
-    flex: 1;
-    height: 1px;
-    width: auto;
-    min-height: unset;
-  }
-  .wcc-slot-surface {
-    border-radius: 0 !important;
-  }
-  .wcc-slot-surface:first-child {
-    border-radius: 0 !important;
-  }
-  .wcc-slot-temp {
-    font-size: 2rem;
-  }
-  .wcc-slot-city {
-    font-size: 0.95rem;
-  }
-
   /* ── Notif ── */
   .notif-controls { gap: 6px; }
 }

@@ -123,7 +123,7 @@ const BackgroundWrapper = ({ weatherType = "sunny", children }) => {
         playsInline
         preload="auto"
       />
-      <div style={{ width: "100%", position: "relative", zIndex: 1 }}>{children}</div>
+      <div style={{ width: "100%", position: "relative" }}>{children}</div>
     </div>
   );
 };

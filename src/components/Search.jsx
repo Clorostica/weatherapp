@@ -16,7 +16,7 @@ const Search = ({ onSearch }) => {
   return (
     <div className="search-container">
       {/* One glass surface wrapping the entire input row */}
-      <GlassSurface width="100%" style={{ minHeight: "50px" }} backgroundOpacity={0.1}>
+      <GlassSurface width="100%" style={{ minHeight: "50px", height: "auto" }}>
         <div className="search-row">
           <div className="search-pin-icon">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">

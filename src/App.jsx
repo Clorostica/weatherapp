@@ -10,13 +10,9 @@ import "./query.css";
 
 const AppContent = memo(() => {
   const [weatherData, setWeatherData] = useState(null);
-  const [savedWeatherType, setSavedWeatherType] = useState(() => {
-    const saved = localStorage.getItem("lastWeatherType");
-    return saved || "sunny";
-  });
 
   const currentWeatherType = useMemo(() => {
-    if (!weatherData) return savedWeatherType;
+    if (!weatherData) return "sunny";
 
     const condition = weatherData.weather[0].main.toLowerCase();
     const temp      = weatherData.main.temp;
@@ -27,34 +23,16 @@ const AppContent = memo(() => {
       ? (now < sunrise || now > sunset)
       : (new Date().getHours() < 6 || new Date().getHours() >= 20);
 
-    let weatherType;
-
     // Night always takes priority when no extreme conditions
-    if (isNight && condition !== "thunderstorm" && temp >= 0) {
-      weatherType = "night";
-    } else if (temp < 0 || condition === "snow") {
-      weatherType = "snowy";
-    } else if (condition === "thunderstorm") {
-      weatherType = "stormy";
-    } else if (condition === "rain" || condition === "drizzle") {
-      weatherType = "rainy";
-    } else if (condition === "mist" || condition === "fog" || condition === "haze" || condition === "smoke") {
-      weatherType = "fog";
-    } else if (temp > 25) {
-      weatherType = "hot";
-    } else if (condition === "clouds") {
-      weatherType = "cloudy";
-    } else {
-      weatherType = "sunny";
-    }
-
-    if (weatherType !== savedWeatherType) {
-      localStorage.setItem("lastWeatherType", weatherType);
-      setSavedWeatherType(weatherType);
-    }
-
-    return weatherType;
-  }, [weatherData, savedWeatherType]);
+    if (isNight && condition !== "thunderstorm" && temp >= 0) return "night";
+    if (temp < 0 || condition === "snow")                      return "snowy";
+    if (condition === "thunderstorm")                          return "stormy";
+    if (condition === "rain" || condition === "drizzle")       return "rainy";
+    if (condition === "mist" || condition === "fog" || condition === "haze" || condition === "smoke") return "fog";
+    if (temp > 25)                                             return "hot";
+    if (condition === "clouds")                                return "cloudy";
+    return "sunny";
+  }, [weatherData]);
 
   return (
     <BackgroundWrapper weatherType={currentWeatherType}>

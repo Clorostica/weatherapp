@@ -134,7 +134,7 @@ export const WeatherNotifications = memo(function WeatherNotifications({ weather
   return (
     <div className="notif-controls">
       {/* Toggle switch — GlassSurface style matching LanguageSwitcher */}
-      <GlassSurface width="100px" height="40px" style={{ cursor: "pointer" }}>
+      <GlassSurface width="100px" height="40px" style={{ cursor: "pointer" }} backgroundOpacity={0.1}>
         <div
           className="notif-switcher"
           onClick={() => setNotifEnabled(!enabled)}

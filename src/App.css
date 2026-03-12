@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -8,28 +8,28 @@
    DESIGN TOKENS
 ───────────────────────────────────────── */
 :root {
-  --font: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  --font:
+    "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
 
   /* Glass system */
-  --glass-bg:         rgba(255, 255, 255, 0.11);
-  --glass-bg-strong:  rgba(255, 255, 255, 0.16);
-  --glass-border:     rgba(255, 255, 255, 0.15);
+  --glass-bg: rgba(255, 255, 255, 0.11);
+  --glass-bg-strong: rgba(255, 255, 255, 0.16);
+  --glass-border: rgba(255, 255, 255, 0.15);
   --glass-border-top: rgba(255, 255, 255, 0.32);
   --glass-blur: blur(32px) saturate(200%) brightness(1.05);
   --glass-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    0 8px 32px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.28);
 
   /* Border radius */
-  --r-xl:  22px;
-  --r-lg:  16px;
-  --r-md:  10px;
-  --r-sm:   7px;
+  --r-xl: 22px;
+  --r-lg: 16px;
+  --r-md: 10px;
+  --r-sm: 7px;
 
   /* Typography scale */
-  --text-label: 0.67rem;   /* section titles, eyebrows, meta labels */
-  --text-body:  0.80rem;   /* descriptions, hints, secondary content */
-  --text-value: 0.92rem;   /* stat values, primary readable content */
+  --text-label: 0.67rem; /* section titles, eyebrows, meta labels */
+  --text-body: 0.8rem; /* descriptions, hints, secondary content */
+  --text-value: 0.92rem; /* stat values, primary readable content */
 
   /* Text colours */
   --text-1: #fff;
@@ -68,13 +68,12 @@ body {
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background:
-    linear-gradient(
-      170deg,
-      rgba(0, 0, 0, 0.30) 0%,
-      rgba(0, 0, 0, 0.10) 45%,
-      rgba(0, 0, 0, 0.42) 100%
-    );
+  background: linear-gradient(
+    170deg,
+    rgba(0, 0, 0, 0.3) 0%,
+    rgba(0, 0, 0, 0.1) 45%,
+    rgba(0, 0, 0, 0.42) 100%
+  );
 }
 
 /* ─────────────────────────────────────────
@@ -98,11 +97,9 @@ body {
   align-items: center;
   justify-content: flex-end;
   padding-bottom: 28px;
-  animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
-  position: relative;
-  z-index: 9999;
+  /* opacity-only fade — no transform to avoid stacking context that blocks backdrop-filter */
+  animation: fadeIn 0.5s ease both;
 }
-
 
 /* ─────────────────────────────────────────
    SEARCH
@@ -112,7 +109,25 @@ body {
   display: flex;
   justify-content: center;
   margin-bottom: 12px;
-  animation: cardEnter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both 0.05s;
+  /* opacity-only fade — no transform to avoid stacking context that blocks backdrop-filter */
+  animation: fadeIn 0.5s ease both 0.05s;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Force visible glass on search and notification switch.
+   glass-surface--svg uses light-dark() which gives a BLACK tint in dark mode
+   (invisible against the dark video). Override to always use white tint. */
+.search-always-full .glass-surface,
+.notif-controls .glass-surface {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 4px 24px rgba(0, 0, 0, 0.18) !important;
 }
 
 /* ─────────────────────────────────────────
@@ -154,7 +169,9 @@ body {
   box-shadow: var(--glass-shadow);
   overflow: hidden;
   animation: cardEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .container:hover {
@@ -180,11 +197,15 @@ body {
 }
 
 .section-title::before {
-  content: '';
+  content: "";
   display: inline-block;
   width: 3px;
   height: 12px;
-  background: linear-gradient(to bottom, rgba(255,255,255,0.55), rgba(255,255,255,0.15));
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.55),
+    rgba(255, 255, 255, 0.15)
+  );
   border-radius: 2px;
   flex-shrink: 0;
 }
@@ -287,53 +308,14 @@ body {
 }
 
 /* ─────────────────────────────────────────
-   CAEL — pixel-art character
+   CAEL — pixel-art character wrapper
+   (Group animations live in Cael.css)
 ───────────────────────────────────────── */
 .cael-wrap {
   width: 64px;
   height: 90px;
   flex-shrink: 0;
-  transform-origin: bottom center;
-  animation: caelBob 2.8s ease-in-out infinite;
   margin-bottom: 4px;
-}
-
-.cael-wrap--hot {
-  animation: caelBounce 2s ease-in-out infinite;
-}
-
-.cael-wrap--snowy {
-  animation: caelShiver 0.28s linear infinite;
-}
-
-.cael-wrap--rainy,
-.cael-wrap--stormy {
-  animation: caelSway 1.6s ease-in-out infinite;
-  transform-origin: bottom right;
-}
-
-@keyframes caelBob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-8px); }
-}
-
-@keyframes caelBounce {
-  0%, 100% { transform: translateY(0) scaleY(1); }
-  40%       { transform: translateY(-12px) scaleY(1.04); }
-  60%       { transform: translateY(-12px) scaleY(1.04); }
-  75%       { transform: translateY(0) scaleY(0.94); }
-  85%       { transform: translateY(-3px) scaleY(1); }
-}
-
-@keyframes caelShiver {
-  0%, 100% { transform: translateX(0) rotate(0deg); }
-  25%       { transform: translateX(-3px) rotate(-5deg); }
-  75%       { transform: translateX(3px) rotate(5deg); }
-}
-
-@keyframes caelSway {
-  0%, 100% { transform: rotate(-4deg) translateX(-2px); }
-  50%       { transform: rotate(4deg)  translateX(2px); }
 }
 
 .wc-hl {
@@ -377,7 +359,7 @@ body {
   gap: 6px;
   height: 32px;
   padding: 0 14px;
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-top-color: rgba(255, 255, 255, 0.28);
   border-radius: 20px;
@@ -387,7 +369,9 @@ body {
   letter-spacing: 0.03em;
   cursor: pointer;
   font-family: var(--font);
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
   white-space: nowrap;
 }
 
@@ -416,7 +400,7 @@ body {
   border-radius: 50%;
   border: 1px solid rgba(255, 255, 255, 0.18);
   border-top-color: rgba(255, 255, 255, 0.28);
-  background: rgba(255, 255, 255, 0.10);
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
   position: relative;
   transition: background 0.15s;
@@ -549,7 +533,6 @@ body {
   letter-spacing: 0.02em;
 }
 
-
 /* ─────────────────────────────────────────
    NOTIFICATION CONTROLS
 ───────────────────────────────────────── */
@@ -577,20 +560,23 @@ body {
 .notif-indicator {
   position: absolute;
   top: 3px;
-  width: 50%;
+  width: calc(50% - 3px);
   height: 34px;
   background: rgba(255, 255, 255, 0.2);
   border-radius: 18px;
-  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .notif-indicator.left {
   left: 3px;
+  right: auto;
 }
 
 .notif-indicator.right {
-  left: calc(50% + 3px);
+  left: auto;
+  right: 3px;
 }
 
 .notif-text {
@@ -607,8 +593,6 @@ body {
 .notif-text.active {
   color: #fff;
 }
-
-
 
 /* ─────────────────────────────────────────
    WEATHER MOOD
@@ -755,7 +739,9 @@ body {
   box-shadow: var(--glass-shadow);
   overflow: hidden;
   animation: cardEnter 0.45s cubic-bezier(0.16, 1, 0.3, 1) both 0.2s;
-  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .wcc-card:hover {
@@ -876,7 +862,9 @@ body {
   font-family: var(--font);
   outline: none;
   text-align: left;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
 }
 
 .wcc-slot-input::placeholder {
@@ -901,7 +889,9 @@ body {
   justify-content: center;
   cursor: pointer;
   font-family: var(--font);
-  transition: background 0.15s, transform 0.1s;
+  transition:
+    background 0.15s,
+    transform 0.1s;
 }
 
 .wcc-slot-btn:hover:not(:disabled) {
@@ -1086,26 +1076,37 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.09);
   border-top-color: rgba(255, 255, 255, 0.16);
   min-width: 68px;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
   position: relative;
   overflow: hidden;
 }
 
 /* Subtle top-edge shine line */
 .hourly-item::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: 15%;
   right: 15%;
   height: 1px;
-  background: linear-gradient(to right, transparent, rgba(255,255,255,0.22), transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(255, 255, 255, 0.22),
+    transparent
+  );
   border-radius: 1px;
 }
 
 /* "Now" card — blue glow treatment */
 .hourly-item--now {
-  background: linear-gradient(160deg, rgba(96, 165, 250, 0.18) 0%, rgba(59, 130, 246, 0.08) 100%);
+  background: linear-gradient(
+    160deg,
+    rgba(96, 165, 250, 0.18) 0%,
+    rgba(59, 130, 246, 0.08) 100%
+  );
   border-color: rgba(147, 197, 253, 0.28);
   border-top-color: rgba(147, 197, 253, 0.45);
   box-shadow:
@@ -1114,7 +1115,12 @@ body {
 }
 
 .hourly-item--now::before {
-  background: linear-gradient(to right, transparent, rgba(147, 197, 253, 0.5), transparent);
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(147, 197, 253, 0.5),
+    transparent
+  );
 }
 
 .hourly-time {
@@ -1164,9 +1170,15 @@ body {
   margin: 0;
 }
 
-.three-col-grid .container:nth-child(1) { animation-delay: 0.16s; }
-.three-col-grid .container:nth-child(2) { animation-delay: 0.22s; }
-.three-col-grid .container:nth-child(3) { animation-delay: 0.28s; }
+.three-col-grid .container:nth-child(1) {
+  animation-delay: 0.16s;
+}
+.three-col-grid .container:nth-child(2) {
+  animation-delay: 0.22s;
+}
+.three-col-grid .container:nth-child(3) {
+  animation-delay: 0.28s;
+}
 
 /* ─────────────────────────────────────────
    FORECAST LIST (vertical, in column)
@@ -1598,41 +1610,21 @@ body {
   margin: 0 auto;
 }
 
-.search-wordmark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
-  margin-bottom: 14px;
-}
-
 .search-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.search-input-wrap {
-  flex: 1;
+  width: 100%;
   position: relative;
-  min-width: 0;
 }
 
 .search-pin-icon {
   position: absolute;
-  left: 13px;
-  top: 50%;
-  transform: translateY(-50%);
+  left: 12px;
   color: rgba(255, 255, 255, 0.5);
   pointer-events: none;
-  z-index: 1;
   display: flex;
   align-items: center;
+  z-index: 2;
 }
 
 .search-input::placeholder {
@@ -1644,6 +1636,24 @@ body {
   width: 100% !important;
   box-sizing: border-box !important;
 }
+
+.search-btn-inner {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-left: 1px solid rgba(255, 255, 255, 0.12);
+  transition: background 0.15s;
+  border-radius: 0 var(--r-xl) var(--r-xl) 0;
+}
+
+.search-btn-inner:hover  { background: rgba(255, 255, 255, 0.1); }
+.search-btn-inner:active { background: rgba(255, 255, 255, 0.05); }
 
 /* ─────────────────────────────────────────
    WARNING / ENTER
@@ -1796,8 +1806,12 @@ body {
     padding-bottom: 20px;
   }
 
-  .hourly-outer   { width: 100%; }
-  .radar-outer    { width: 100%; }
+  .hourly-outer {
+    width: 100%;
+  }
+  .radar-outer {
+    width: 100%;
+  }
 
   .three-col-grid {
     grid-template-columns: 1fr;
@@ -1830,8 +1844,20 @@ body {
     font-size: 0.74rem;
   }
 
-  .radar-zoom-pill { height: 30px; }
-  .radar-zoom-btn  { width: 28px; }
+  .radar-zoom-pill {
+    height: 30px;
+  }
+  .radar-zoom-btn {
+    width: 28px;
+  }
+
+  /* ── WeatherCompare tablet ── */
+  .wcc-slot-temp { font-size: 2.2rem; }
+  .wcc-slot-city { font-size: 1rem;   }
+
+  /* ── WeatherMood tablet ── */
+  .wm-content { padding: 20px 22px; }
+  .wm-mood    { font-size: 1.35rem; }
 }
 
 /* ─────────────────────────────────────────
@@ -1844,10 +1870,23 @@ body {
     text-align: center;
     padding: 20px 18px;
   }
-  .wc-hero-left { padding-right: 0; align-items: center; }
-  .wc-temp-cael { justify-content: center; }
-  .cael-wrap { width: 54px; height: 76px; }
-  .wc-vdivider { width: 100%; height: 1px; align-self: auto; margin: 16px 0; }
+  .wc-hero-left {
+    padding-right: 0;
+    align-items: center;
+  }
+  .wc-temp-cael {
+    justify-content: center;
+  }
+  .cael-wrap {
+    width: 54px;
+    height: 76px;
+  }
+  .wc-vdivider {
+    width: 100%;
+    height: 1px;
+    align-self: auto;
+    margin: 16px 0;
+  }
   .wc-stats-right {
     padding-left: 0;
     flex-direction: row;
@@ -1856,7 +1895,11 @@ body {
     gap: 10px 20px;
     min-width: unset;
   }
-  .wc-stat-row { flex-direction: column; align-items: center; gap: 3px; }
+  .wc-stat-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1868,8 +1911,12 @@ body {
     padding-bottom: 16px;
   }
 
-  .hourly-outer   { width: 100%; }
-  .radar-outer    { width: 100%; }
+  .hourly-outer {
+    width: 100%;
+  }
+  .radar-outer {
+    width: 100%;
+  }
 
   .search-container {
     width: 100%;
@@ -1913,15 +1960,21 @@ body {
     border-radius: 10px;
   }
 
-  .hourly-time { font-size: 0.60rem; }
-  .hourly-temp { font-size: 0.82rem; }
+  .hourly-time {
+    font-size: 0.6rem;
+  }
+  .hourly-temp {
+    font-size: 0.82rem;
+  }
 
   .fc-row {
     padding: 8px 0;
     gap: 8px;
   }
 
-  .fc-row-desc { display: none; }
+  .fc-row-desc {
+    display: none;
+  }
 
   .fc-row-day {
     min-width: 34px;
@@ -1929,12 +1982,20 @@ body {
   }
 
   .fc-row-min,
-  .fc-row-max { font-size: 0.75rem; }
+  .fc-row-max {
+    font-size: 0.75rem;
+  }
 
-  .aq-number { font-size: 2.6rem; }
-  .aq-label  { font-size: 0.8rem; }
+  .aq-number {
+    font-size: 2.6rem;
+  }
+  .aq-label {
+    font-size: 0.8rem;
+  }
 
-  .precip-chart { aspect-ratio: 260 / 110; }
+  .precip-chart {
+    aspect-ratio: 260 / 110;
+  }
 
   .radar-frame {
     height: 220px;
@@ -1971,5 +2032,69 @@ body {
   .lang-switcher-container {
     bottom: 12px;
     right: 12px;
+  }
+
+  /* ── WeatherMood ── */
+  .wm-content { padding: 16px 18px; }
+  .wm-emoji   { font-size: 2rem; }
+  .wm-mood    { font-size: 1.2rem; }
+
+  /* ── WeatherCompare — stack slots vertically ── */
+  .wcc-slots {
+    flex-direction: column;
+    gap: 0;
+  }
+  .wcc-vs-badge {
+    flex-direction: row;
+    width: 100%;
+    padding: 4px 12px;
+  }
+  .wcc-vs-line {
+    flex: 1;
+    height: 1px;
+    width: auto;
+    min-height: unset;
+  }
+  .wcc-slot-surface {
+    border-radius: 0 !important;
+  }
+  .wcc-slot-surface:first-child {
+    border-radius: 0 !important;
+  }
+  .wcc-slot-temp {
+    font-size: 2rem;
+  }
+  .wcc-slot-city {
+    font-size: 0.95rem;
+  }
+
+  /* ── Notif ── */
+  .notif-controls { gap: 6px; }
+}
+
+/* ─────────────────────────────────────────
+   RESPONSIVE — EXTRA SMALL (≤ 360px)
+───────────────────────────────────────── */
+@media (max-width: 360px) {
+  .app-layout { padding: 12px 10px 80px; }
+
+  .wc-temp { font-size: clamp(4.8rem, 20vw, 6rem); }
+  .wc-city { font-size: clamp(1.5rem, 6vw, 2rem);  }
+
+  .wcc-slot-temp { font-size: 1.8rem; }
+
+  .hourly-item {
+    min-width: 40px;
+    padding: 6px 6px;
+    gap: 3px;
+  }
+
+  .search-container {
+    max-width: 100%;
+  }
+
+  .container {
+    padding: 12px 12px;
+    border-radius: 14px;
   }
 }

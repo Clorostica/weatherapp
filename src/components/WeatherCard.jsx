@@ -16,6 +16,7 @@ function getOutfit(weather) {
   if (temp > 28) return "hot";
   if (code >= 200 && code <= 232) return "stormy";
   if (code >= 300 && code <= 531) return "rainy";
+  if (temp < 18) return "cool";
   return "casual";
 }
 

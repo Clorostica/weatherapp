@@ -1,21 +1,108 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useLang } from "../components/useLang";
 import GlassSurface from "./GlassSurface";
 
+const GEOCODING_URL = "https://api.openweathermap.org/geo/1.0/direct";
+
 const Search = ({ onSearch }) => {
-  const [cityQuery, setCityQuery] = useState("");
-  const [warning, setWarning]     = useState("");
+  const [cityQuery, setCityQuery]             = useState("");
+  const [warning, setWarning]                 = useState("");
+  const [suggestions, setSuggestions]         = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [dropdownPos, setDropdownPos]         = useState({ top: 0, left: 0, width: 0 });
+  const containerRef = useRef(null);
   const { t } = useLang();
+
+  const apiKey = import.meta.env.VITE_OPEN_WEATHER_API_KEY;
+
+  /* Fetch suggestions with debounce */
+  useEffect(() => {
+    if (cityQuery.trim().length < 2) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const res  = await fetch(`${GEOCODING_URL}?q=${encodeURIComponent(cityQuery)}&limit=6&appid=${apiKey}`);
+        const data = await res.json();
+        const list = Array.isArray(data) ? data : [];
+        setSuggestions(list);
+        if (list.length > 0 && containerRef.current) {
+          const rect = containerRef.current.getBoundingClientRect();
+          setDropdownPos({
+            top:   rect.bottom + 6,
+            left:  rect.left,
+            width: rect.width,
+          });
+          setShowSuggestions(true);
+        } else {
+          setShowSuggestions(false);
+        }
+      } catch {
+        setSuggestions([]);
+        setShowSuggestions(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [cityQuery, apiKey]);
+
+  /* Close on outside click */
+  useEffect(() => {
+    if (!showSuggestions) return;
+    const handler = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showSuggestions]);
 
   const handleSubmit = () => {
     if (cityQuery.trim() === "") { setWarning("⚠️ write a city name"); return; }
     setWarning("");
-    onSearch(cityQuery);
+    setShowSuggestions(false);
+    onSearch(cityQuery.trim());
   };
 
+  const handleSelect = (item) => {
+    const name  = item.local_names?.es || item.local_names?.en || item.name;
+    const label = `${name}, ${item.country}`;
+    setCityQuery(label);
+    setSuggestions([]);
+    setShowSuggestions(false);
+    setWarning("");
+    onSearch(label);
+  };
+
+  const dropdown = showSuggestions && suggestions.length > 0 && createPortal(
+    <ul
+      className="search-suggestions"
+      style={{ top: dropdownPos.top, left: dropdownPos.left, width: dropdownPos.width }}
+    >
+      {suggestions.map((item, i) => {
+        const name  = item.local_names?.es || item.local_names?.en || item.name;
+        const state = item.state ? `${item.state}, ` : "";
+        return (
+          <li
+            key={i}
+            className="search-suggestion-item"
+            onMouseDown={(e) => { e.preventDefault(); handleSelect(item); }}
+          >
+            <span className="search-suggestion-pin">📍</span>
+            <span className="search-suggestion-name">{name}</span>
+            <span className="search-suggestion-meta">{state}{item.country}</span>
+          </li>
+        );
+      })}
+    </ul>,
+    document.body
+  );
+
   return (
-    <div className="search-container">
-      {/* One glass surface wrapping the entire input row */}
+    <div className="search-container" ref={containerRef}>
       <GlassSurface width="100%" style={{ minHeight: "50px", height: "auto" }}>
         <div className="search-row">
           <div className="search-pin-icon">
@@ -28,7 +115,11 @@ const Search = ({ onSearch }) => {
             type="text"
             value={cityQuery}
             onChange={(e) => { setCityQuery(e.target.value); if (warning) setWarning(""); }}
-            onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+            onKeyDown={(e) => {
+              if (e.key === "Enter")  { setShowSuggestions(false); handleSubmit(); }
+              if (e.key === "Escape") setShowSuggestions(false);
+            }}
+            onClick={() => showSuggestions ? setShowSuggestions(false) : suggestions.length > 0 && setShowSuggestions(true)}
             placeholder={t.writeCity}
             className="search-input"
             style={{
@@ -45,6 +136,7 @@ const Search = ({ onSearch }) => {
               fontSize: "14px",
               boxSizing: "border-box",
             }}
+            autoComplete="off"
           />
 
           <button
@@ -68,6 +160,8 @@ const Search = ({ onSearch }) => {
           </button>
         </div>
       </GlassSurface>
+
+      {dropdown}
 
       {warning && <div className="warning">{warning}</div>}
       <div className="enter">{t.pressEnter}</div>

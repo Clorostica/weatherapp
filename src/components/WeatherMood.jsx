@@ -20,6 +20,34 @@ const getTempColor = (temp) => {
   return "#ef4444";                   // very hot — red
 };
 
+const getTipIcon = (temp, code) => {
+  /* Storm / heavy rain → stay home */
+  if (code >= 200 && code <= 232) return "🏠";
+  /* Snow */
+  if (code >= 600 && code <= 622) {
+    if (temp < -5) return "🧥";
+    return "🧤";
+  }
+  /* Rain / drizzle */
+  if ((code >= 300 && code <= 321) || (code >= 500 && code <= 531)) {
+    if (temp > 20) return "🌂";
+    if (temp >= 10) return "☂️";
+    return "🧥";
+  }
+  /* Fog / atmosphere */
+  if (code >= 701 && code <= 781) return "🌂";
+  /* Clear & clouds — outfit by temperature */
+  if (temp < -10) return "🧥";
+  if (temp <   0) return "🧥";
+  if (temp <   8) return "🧣";
+  if (temp <  13) return "🧥";
+  if (temp <  18) return "👔";
+  if (temp <  23) return "👕";
+  if (temp <  28) return "😎";
+  if (temp <  33) return "🩴";
+  return "🩱";
+};
+
 const getMoodData = (weather, isEs) => {
   const code      = weather.weather?.[0]?.id   ?? 800;
   const temp      = weather.main?.temp          ?? 20;
@@ -252,6 +280,7 @@ export const WeatherMood = memo(function WeatherMood({ weather }) {
   const isEs     = lang === "es";
   const windNote = getWindNote(weather.wind?.speed ?? 0, isEs);
   const { weatherEmoji, moodEmoji, mood, vibe, tip, color } = getMoodData(weather, isEs);
+  const tipIcon  = getTipIcon(weather.main?.temp ?? 20, weather.weather?.[0]?.id ?? 800);
 
   return (
     <div className="container wm-card">
@@ -273,7 +302,7 @@ export const WeatherMood = memo(function WeatherMood({ weather }) {
 
         <div className="wm-bottom">
           <div className="wm-tip">
-            <span className="wm-tip-icon">👔</span>
+            <span className="wm-tip-icon">{tipIcon}</span>
             <span className="wm-tip-text">{tip}</span>
           </div>
 

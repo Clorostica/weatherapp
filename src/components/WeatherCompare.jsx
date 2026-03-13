@@ -2,16 +2,8 @@ import { memo, useState, useCallback } from "react";
 import { useLang } from "./useLang";
 import getWeatherIcon from "./IconWeather.js";
 
-const CompareRow = ({ label, valA, valB, winA, winB }) => (
-  <div className="wcc-row">
-    <span className={`wcc-val${winA ? " wcc-val--win" : ""}`}>{valA}</span>
-    <span className="wcc-label">{label}</span>
-    <span className={`wcc-val wcc-val--right${winB ? " wcc-val--win" : ""}`}>{valB}</span>
-  </div>
-);
-
-/* Returns only content — GlassSurface is the wrapper in the parent */
-const CitySlotContent = ({ slotLabel, data, isEs, onSearch, onClear }) => {
+/* ── Search form shown when slot is empty ── */
+const EmptySlot = ({ slotLabel, data, isEs, onSearch }) => {
   const [query, setQuery] = useState("");
 
   const handleSubmit = (e) => {
@@ -19,24 +11,8 @@ const CitySlotContent = ({ slotLabel, data, isEs, onSearch, onClear }) => {
     if (query.trim()) onSearch(query.trim());
   };
 
-  if (data.weather) {
-    const w = data.weather;
-    return (
-      <>
-        <div className="wcc-slot-icon">{getWeatherIcon(w.weather[0].main, 40)}</div>
-        <span className="wcc-slot-city">{w.name}</span>
-        <span className="wcc-slot-country">{w.sys?.country}</span>
-        <span className="wcc-slot-temp">{Math.round(w.main.temp)}°</span>
-        <span className="wcc-slot-desc">{w.weather[0].description}</span>
-        <button className="wcc-slot-change" type="button" onClick={onClear}>
-          {isEs ? "Cambiar" : "Change"}
-        </button>
-      </>
-    );
-  }
-
   return (
-    <>
+    <div className="wcc-empty">
       <span className="wcc-slot-empty-label">{slotLabel}</span>
       <form className="wcc-slot-form" onSubmit={handleSubmit}>
         <input
@@ -64,9 +40,67 @@ const CitySlotContent = ({ slotLabel, data, isEs, onSearch, onClear }) => {
         </button>
       </form>
       {data.error && <p className="wcc-slot-error">{data.error}</p>}
-    </>
+    </div>
   );
 };
+
+/* ── Stat row inside a filled city card ── */
+const StatRow = ({ icon, label, value, win }) => (
+  <div className={`wcc-stat-row${win ? " wcc-stat-row--win" : ""}`}>
+    <span className="wcc-stat-icon">{icon}</span>
+    <span className="wcc-stat-label">{label}</span>
+    <span className="wcc-stat-value">{value}</span>
+    {win && <span className="wcc-stat-crown">👑</span>}
+  </div>
+);
+
+/* ── Full city card when data is loaded ── */
+const CityCard = ({ w, isEs, onClear, wins }) => (
+  <div className="wcc-city-card">
+    <div className="wcc-city-header">
+      <div className="wcc-city-icon">{getWeatherIcon(w.weather[0].main, 36)}</div>
+      <div className="wcc-city-title">
+        <span className="wcc-slot-city">{w.name}</span>
+        <span className="wcc-slot-country">{w.sys?.country}</span>
+      </div>
+      <button className="wcc-slot-change" type="button" onClick={onClear}>
+        {isEs ? "Cambiar" : "Change"}
+      </button>
+    </div>
+
+    <div className="wcc-city-temp-row">
+      <span className="wcc-city-temp">{Math.round(w.main.temp)}°</span>
+      <span className="wcc-city-desc">{w.weather[0].description}</span>
+    </div>
+
+    <div className="wcc-city-stats">
+      <StatRow
+        icon="🌡️"
+        label={isEs ? "Sensación" : "Feels like"}
+        value={`${Math.round(w.main.feels_like)}°`}
+        win={wins?.feelsLike}
+      />
+      <StatRow
+        icon="💧"
+        label={isEs ? "Humedad" : "Humidity"}
+        value={`${w.main.humidity}%`}
+        win={wins?.humidity}
+      />
+      <StatRow
+        icon="💨"
+        label={isEs ? "Viento" : "Wind"}
+        value={`${Math.round(w.wind?.speed ?? 0)} m/s`}
+        win={wins?.wind}
+      />
+      <StatRow
+        icon="🌡️"
+        label={isEs ? "Máx / Mín" : "High / Low"}
+        value={`${Math.round(w.main.temp_max)}° / ${Math.round(w.main.temp_min)}°`}
+        win={false}
+      />
+    </div>
+  </div>
+);
 
 const EMPTY = { weather: null, loading: false, error: null };
 
@@ -107,29 +141,24 @@ export const WeatherCompare = memo(function WeatherCompare({ apiKey }) {
 
   const searchA = useCallback((q) => fetchCity(q, setSlotA), [fetchCity]);
   const searchB = useCallback((q) => fetchCity(q, setSlotB), [fetchCity]);
-  const clearA = useCallback(() => setSlotA(EMPTY), []);
-  const clearB = useCallback(() => setSlotB(EMPTY), []);
+  const clearA  = useCallback(() => setSlotA(EMPTY), []);
+  const clearB  = useCallback(() => setSlotB(EMPTY), []);
 
   const a = slotA.weather;
   const b = slotB.weather;
 
-  const tempWin =
-    a && b && a.main.temp !== b.main.temp
-      ? { a: a.main.temp > b.main.temp, b: b.main.temp > a.main.temp }
-      : { a: false, b: false };
+  /* Which city wins each stat (lower humidity/wind = better; higher temp = warmer) */
+  const winsA = a && b ? {
+    feelsLike: a.main.feels_like > b.main.feels_like,
+    humidity:  a.main.humidity   < b.main.humidity,
+    wind:      (a.wind?.speed ?? 0) < (b.wind?.speed ?? 0),
+  } : null;
 
-  const humWin =
-    a && b && a.main.humidity !== b.main.humidity
-      ? { a: a.main.humidity < b.main.humidity, b: b.main.humidity < a.main.humidity }
-      : { a: false, b: false };
-
-  const windWin =
-    a && b && (a.wind?.speed ?? 0) !== (b.wind?.speed ?? 0)
-      ? {
-          a: (a.wind?.speed ?? 0) < (b.wind?.speed ?? 0),
-          b: (b.wind?.speed ?? 0) < (a.wind?.speed ?? 0),
-        }
-      : { a: false, b: false };
+  const winsB = a && b ? {
+    feelsLike: b.main.feels_like > a.main.feels_like,
+    humidity:  b.main.humidity   < a.main.humidity,
+    wind:      (b.wind?.speed ?? 0) < (a.wind?.speed ?? 0),
+  } : null;
 
   return (
     <div className="wcc-card">
@@ -139,76 +168,28 @@ export const WeatherCompare = memo(function WeatherCompare({ apiKey }) {
         <div className="wcc-section-line" />
       </div>
 
-      <div className="wcc-slots">
-        <div className={`wcc-slot-surface${!slotA.weather ? " wcc-slot-surface--empty" : ""}`}>
-          <CitySlotContent
-            slotLabel={isEs ? "Ciudad A" : "City A"}
-            data={slotA}
-            isEs={isEs}
-            onSearch={searchA}
-            onClear={clearA}
-          />
-        </div>
+      <div className="wcc-cities">
+        {/* City A */}
+        {a ? (
+          <CityCard w={a} isEs={isEs} onClear={clearA} wins={winsA} />
+        ) : (
+          <EmptySlot slotLabel={isEs ? "Ciudad A" : "City A"} data={slotA} isEs={isEs} onSearch={searchA} />
+        )}
 
-        <div className="wcc-vs-badge">
+        {/* VS divider — only when at least one city is set */}
+        <div className="wcc-vs-row">
           <div className="wcc-vs-line" />
-          <span>VS</span>
+          <span className="wcc-vs-text">VS</span>
           <div className="wcc-vs-line" />
         </div>
 
-        <div className={`wcc-slot-surface${!slotB.weather ? " wcc-slot-surface--empty" : ""}`}>
-          <CitySlotContent
-            slotLabel={isEs ? "Ciudad B" : "City B"}
-            data={slotB}
-            isEs={isEs}
-            onSearch={searchB}
-            onClear={clearB}
-          />
-        </div>
+        {/* City B */}
+        {b ? (
+          <CityCard w={b} isEs={isEs} onClear={clearB} wins={winsB} />
+        ) : (
+          <EmptySlot slotLabel={isEs ? "Ciudad B" : "City B"} data={slotB} isEs={isEs} onSearch={searchB} />
+        )}
       </div>
-
-      {a && b && (
-        <>
-          <div className="wcc-divider" />
-          <div className="wcc-table">
-            <CompareRow
-              label="Temp"
-              valA={`${Math.round(a.main.temp)}°`}
-              valB={`${Math.round(b.main.temp)}°`}
-              winA={tempWin.a}
-              winB={tempWin.b}
-            />
-            <CompareRow
-              label={isEs ? "Sensación" : "Feels Like"}
-              valA={`${Math.round(a.main.feels_like)}°`}
-              valB={`${Math.round(b.main.feels_like)}°`}
-              winA={false}
-              winB={false}
-            />
-            <CompareRow
-              label={isEs ? "Humedad" : "Humidity"}
-              valA={`${a.main.humidity}%`}
-              valB={`${b.main.humidity}%`}
-              winA={humWin.a}
-              winB={humWin.b}
-            />
-            <CompareRow
-              label={isEs ? "Viento" : "Wind"}
-              valA={`${Math.round(a.wind?.speed ?? 0)} m/s`}
-              valB={`${Math.round(b.wind?.speed ?? 0)} m/s`}
-              winA={windWin.a}
-              winB={windWin.b}
-            />
-            <CompareRow
-              label={isEs ? "Condición" : "Condition"}
-              valA={a.weather[0].description}
-              valB={b.weather[0].description}
-              winA={false}
-              winB={false}
-            />
-          </div>
-        </>
-      )}
     </div>
   );
 });

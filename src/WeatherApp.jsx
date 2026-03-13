@@ -33,6 +33,9 @@ const WeatherNotifications = lazy(() =>
 const WeatherCompare = lazy(() =>
   import("./components/WeatherCompare").then((m) => ({ default: m.WeatherCompare }))
 );
+const WeatherActivities = lazy(() =>
+  import("./components/WeatherActivities").then((m) => ({ default: m.WeatherActivities }))
+);
 
 const WeatherApp = ({ setWeatherData }) => {
   const { t, lang } = useLang();
@@ -222,6 +225,13 @@ const WeatherApp = ({ setWeatherData }) => {
             />
           </Suspense>
         </div>
+      )}
+
+      {/* ── Activities & places ── */}
+      {hasSearched && weather && (
+        <Suspense fallback={null}>
+          <WeatherActivities weather={weather} />
+        </Suspense>
       )}
 
       {/* ── Three-column section ── */}

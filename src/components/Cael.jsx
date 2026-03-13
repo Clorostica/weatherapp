@@ -39,9 +39,14 @@ function makeHead(hairColor, sunglasses) {
     R(3, 3, hairColor),
     ...(sunglasses
       ? [
-          R(4, 3, "#E65100", 2),        // orange left lens
-          R(6, 3, EY),                  // dark bridge
-          R(7, 3, "#E65100"),           // orange right lens
+          // top frame bar — two dark cells above each lens
+          R(4, 2, "#111", 2),           // top frame left
+          R(7, 2, "#111", 2),           // top frame right
+          // left temple + lenses + bridge
+          R(3, 3, "#111"),              // left temple
+          R(4, 3, "#FF6D00", 2),        // left lens (orange tint, 2 wide)
+          R(6, 3, "#111"),              // bridge
+          R(7, 3, "#FF6D00", 2),        // right lens (2 wide)
         ]
       : [R(4, 3, EY), R(5, 3, EY2), R(6, 3, EY2), R(7, 3, EY)]
     ),
@@ -188,6 +193,39 @@ function rainyParts() {
 }
 
 /* ─────────────────────────────────────────
+   COOL (0–18°C): blue-grey jacket · dark jeans · white sneakers
+───────────────────────────────────────── */
+function coolParts() {
+  const JK = "#546E7A", JK2 = "#455A64", JN = "#1B2A3A", SN = "#ECEFF1", SN2 = "#90A4AE";
+  return {
+    extraHead: [],
+    body: [
+      R(5, 7, JK2, 2),              // collar at neck
+      R(3,  8, JK, 6),
+      R(3,  9, JK, 6),
+      R(5,  9, JK2), R(6, 9, JK2), // centre zip shadow
+      R(3, 10, JK, 6),
+      R(4, 11, JN, 4), R(4, 12, JN, 4),
+    ],
+    armL: [
+      R(2,  9, JK), R(2, 10, JK), R(2, 11, JK),
+      R(2, 12, SK2),
+    ],
+    armR: [
+      R(9,  9, JK), R(9, 10, JK), R(9, 11, JK),
+      R(9, 12, SK2),
+    ],
+    legs: [
+      R(4, 13, JN, 2), R(6, 13, JN, 2),
+      R(4, 14, JN, 2), R(6, 14, JN, 2),
+      R(3, 15, SN, 3), R(6, 15, SN, 3),
+      R(3, 16, SN2, 3), R(6, 16, SN2, 3),
+    ],
+    accessories: [],
+  };
+}
+
+/* ─────────────────────────────────────────
    CASUAL: teal tee · dark jeans · sneakers
 ───────────────────────────────────────── */
 function casualParts() {
@@ -311,6 +349,7 @@ export const Cael = memo(function Cael({ weatherType = "casual" }) {
   const isRainy  = weatherType === "rainy";
   const isStormy = weatherType === "stormy";
   const isNight  = weatherType === "night";
+  const isCool   = weatherType === "cool";
 
   const hairColor =
     isCold                  ? "#37474F"
@@ -323,6 +362,7 @@ export const Cael = memo(function Cael({ weatherType = "casual" }) {
     : isCold                ? coldParts()
     : (isRainy || isStormy) ? rainyParts()
     : isNight               ? nightParts()
+    : isCool                ? coolParts()
     :                         casualParts();
 
   const headRects  = makeHead(hairColor, isHot);

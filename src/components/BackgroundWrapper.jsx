@@ -36,14 +36,22 @@ const BackgroundWrapper = ({ weatherType = "sunny", children }) => {
     if (currentVideoSrcRef.current === videoSrc) return;
     currentVideoSrcRef.current = videoSrc;
 
+    const handleCanPlay = () => {
+      video.play().catch((error) => {
+        if (error.name !== "AbortError" && error.name !== "NotAllowedError") {
+          console.error("Error reproduciendo video:", error);
+        }
+      });
+    };
+
     video.pause();
     video.src = videoSrc;
+    video.addEventListener("canplay", handleCanPlay, { once: true });
     video.load();
-    video.play().catch((error) => {
-      if (error.name !== "AbortError" && error.name !== "NotAllowedError") {
-        console.error("Error reproduciendo video:", error);
-      }
-    });
+
+    return () => {
+      video.removeEventListener("canplay", handleCanPlay);
+    };
   }, [weatherType]);
 
   return (
